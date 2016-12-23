@@ -91,8 +91,9 @@ and open the template in the editor.
     -fx-background-color: rgba(204, 204, 204, 0.5);
 }
 
-#manifestInfoGrid {
+#manifestInfoHBox {
     -fx-alignment: center;
+    -fx-spacing: 1em;
 }
 
 #sliderScrollPane {
@@ -101,10 +102,8 @@ and open the template in the editor.
     -fx-alignment: center;
 }
 
-#manifestGrid {
-    -fx-background-color: yellow;
-    -fx-hgap: 1em;
-    -fx-vgap: 1em;
+#manifestHBox {
+    -fx-spacing: 1em;
 }
 
 .manifest-vbox {
