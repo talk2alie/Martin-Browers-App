@@ -1,13 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" 
-            xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="manifestgenerator.RootLayoutController">
-    
-</AnchorPane>
+<BorderPane minHeight="768.0" minWidth="1024.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <GridPane fx:id="headerGrid" maxHeight="200.0" minWidth="150.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="15.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="25.0" vgrow="SOMETIMES" />
+          <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+          <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+          <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="15.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label fx:id="titleLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Martin Browers' Manifest Generator" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <Label fx:id="subTitleLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="1. Click  Browse to Select the CSV File with the Manifest Data   2. Click Preview Manifests to Generate Manifest Preview   3. Print or Export Manifests" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+            <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+            <TextField fx:id="browseTextField" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Browse for CSV file with Manifest Data" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <Button fx:id="browseButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+         </children>
+      </GridPane>
+   </top>
+   <center>
+      <GridPane fx:id="mainGrid" BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints percentHeight="100.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="previewButton" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Preview Manifests" GridPane.columnIndex="2" />
+               </children>
+            </GridPane>
+            <GridPane fx:id="contentGrid" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
+                  <RowConstraints percentHeight="2.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <GridPane fx:id="sliderGrid" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="90.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Button fx:id="previousButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" />
+                        <ScrollPane fx:id="sliderScrollPane" fitToHeight="true" fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                           <content>
+                              <GridPane fx:id="manifestGrid">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                    <ColumnConstraints hgrow="SOMETIMES" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox layoutX="10.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="1" />
+                                    <VBox layoutX="293.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="2" />
+                                    <VBox layoutX="570.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="3" />
+                                    <VBox layoutX="841.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="4" />
+                                    <VBox layoutX="1106.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="5" />
+                                    <VBox layoutX="1365.0" layoutY="10.0" minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" GridPane.columnIndex="6" />
+                                 </children>
+                              </GridPane>
+                           </content>
+                        </ScrollPane>
+                        <Button fx:id="nextButton" layoutX="10.0" layoutY="185.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" GridPane.columnIndex="2" />
+                     </children>
+                  </GridPane>
+                  <Separator GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                  <GridPane fx:id="manifestInfoGrid" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="2.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="2.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints percentHeight="100.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Separator maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" GridPane.columnIndex="1" />
+                        <Separator layoutX="299.0" layoutY="17.0" maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" GridPane.columnIndex="3" />
+                        <Label fx:id="originalFileLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Original File: Bun Manifest.csv" />
+                        <Label fx:id="foundOnPageLabel" layoutX="10.0" layoutY="24.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Found on Page: 5 of 195" GridPane.columnIndex="2" />
+                        <Label fx:id="trailerPositionLabel" layoutX="326.0" layoutY="24.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Trailer Position: 0RL" GridPane.columnIndex="4" />
+                     </children>
+                  </GridPane>
+               </children>
+            </GridPane>
+         </children>
+      </GridPane>
+   </center>
+   <bottom>
+      <GridPane fx:id="footerGrid" minHeight="62.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints percentHeight="70.0" vgrow="SOMETIMES" />
+          <RowConstraints percentHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button fx:id="printButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Print" GridPane.columnIndex="2" />
+            <Button fx:id="exportButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Export to Word" GridPane.columnIndex="3" />
+         </children>
+      </GridPane>
+   </bottom>
+</BorderPane>

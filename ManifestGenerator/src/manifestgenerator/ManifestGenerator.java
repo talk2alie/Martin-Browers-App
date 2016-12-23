@@ -16,15 +16,22 @@ import javafx.stage.Stage;
  * @author talk2
  */
 public class ManifestGenerator extends Application
-{    
+{   
+    private RootLayoutController rootController;
+    
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass()
                 .getResource("/manifestgenerator/views/RootLayout.fxml"));
         
+        rootController = loader.getController();
+        
         Parent root = loader.load();
         stage.setTitle("Manifest Generator");
-        Scene scene = new Scene(root, 800, 600);
+        stage.setMinWidth(1024);
+        stage.setMinHeight(768);
+        Scene scene = new Scene(root, 1024, 768);
+        scene.getStylesheets().add("/manifestgenerator/styles/styles.css");
         stage.setScene(scene);
         stage.show();
     }

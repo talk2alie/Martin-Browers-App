@@ -1,0 +1,143 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 22, 2016, 2:11:14 PM
+    Author     : talk2
+*/
+.root {
+    -fx-background-color: #eeeeee;
+}
+
+#headerGrid, #mainGrid, #footerGrid, #previewGrid {
+    -fx-hgap: 1em;
+}
+
+#titleLabel {
+    -fx-font: 3em "Segoe UI Light";    
+    -fx-alignment: center;   
+}
+
+#subTitleLabel {
+    -fx-font: 1.2em "Segoe UI";
+    -fx-alignment: center;
+}
+
+#browseTextField {
+    -fx-background-radius: 0;
+    -fx-background-color: #cccccc;
+    -fx-font: 1.2em "Segoe UI";
+    -fx-font-style: italic;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
+}
+
+#browseButton, #printButton, #exportButton {
+    -fx-background-radius: 0;
+    -fx-background-color: rgba(204, 204, 204, 1);
+    -fx-font: 1.2em "Segoe UI";
+    -fx-text-fill: #666666;
+    -fx-font-weight: bold;
+    -fx-border: none;
+    -fx-background-insets: 0;
+}
+
+#browseButton:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.8);
+}
+
+#browseButton:pressed {
+    -fx-background-color: #dddddd;
+}
+
+#mainGrid, #footerGrid {
+    -fx-background-color: rgba(221, 221, 221, 0.6);
+}
+
+#previewGrid {
+    -fx-background-color: rgba(221, 221, 221, 1);
+    -fx-padding: 0;
+}
+
+#previewButton {
+    -fx-background-color: rgba(102, 102, 102, 1);
+    -fx-text-fill: #cccccc;
+     -fx-font: 1.2em "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-background-radius: 0;
+    -fx-border: none;
+    -fx-background-insets: 0;
+}
+
+#previewButton:hover {
+    -fx-background-color: rgba(102, 102, 102, 0.9);
+    -fx-cursor: hand;
+}
+
+#previewButton:pressed {
+    -fx-background-color: #555555;
+    -fx-cursor: hand;
+}
+
+#printButton:hover, #exportButton:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.7);
+}
+
+#printButton:pressed, #exportButton:pressed {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.5);
+}
+
+#manifestInfoGrid {
+    -fx-alignment: center;
+}
+
+#sliderScrollPane {
+    /*-fx-hbar-policy: never;*/
+    -fx-vbar-policy: never;
+    -fx-alignment: center;
+}
+
+#manifestGrid {
+    -fx-background-color: yellow;
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+}
+
+.manifest-vbox {
+    -fx-border-color: #000000;
+    -fx-border-width: 1px;
+    -fx-background-color: #ffffff;
+}
+
+#previousButton, #nextButton {
+    -fx-background-insets: 0;
+    -fx-background-color: #eeeeee;
+    -fx-border: none;
+    -fx-background-radius: 0;
+}
+
+#previousButton {
+    -fx-graphic: url('/manifestgenerator/resources/chev-left.png');
+}
+
+#nextButton {
+    -fx-graphic: url('/manifestgenerator/resources/chev-right.png');
+}
+
+#previousButton:hover, #nextButton:hover {
+    -fx-cursor: hand;    
+}
+
+#contentGrid, #sliderScrollPane {
+    -fx-background-color: #eeeeee;
+}
+
+#originalFileLabel, #foundOnPageLabel, #trailerPositionLabel {
+    -fx-alignment: center;
+}
+
+
