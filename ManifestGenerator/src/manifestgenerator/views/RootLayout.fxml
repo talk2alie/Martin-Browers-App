@@ -94,13 +94,13 @@
                            <content>
                               <HBox fx:id="manifestHBox" prefHeight="100.0" prefWidth="200.0">
                                  <children>
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
-                                    <VBox minWidth="288.252" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
+                                    <VBox minWidth="350.0" prefWidth="288.252" styleClass="manifest-vbox" />
                                  </children>
                               </HBox>
                            </content>
