@@ -126,11 +126,8 @@ public class RootLayoutController implements Initializable
         if (file != null) {
             viewModel.setOriginalFilePath(file.getPath());
             viewModel.setOriginalFileName(file.getName());
-            
 
             viewModel.setPreviewButtonDisabled(Boolean.FALSE);
-            viewModel.setPrintButtonDisabled(Boolean.FALSE);
-            viewModel.setExportButtonDisabled(Boolean.FALSE);
         }
     }
 
@@ -149,6 +146,10 @@ public class RootLayoutController implements Initializable
             palettes.addAll(paletteManager.PALETTES);
             if(paletteManager.PALETTES.size() > 0) {
                 manifestListView.getSelectionModel().select(0);
+                viewModel.setTotalPageCountInFile(
+                        paletteManager.getTotlaPageCount());
+                viewModel.setPrintButtonDisabled(Boolean.FALSE);
+                viewModel.setExportButtonDisabled(Boolean.FALSE);
             }
         }
         catch (IOException ex) {
@@ -195,7 +196,8 @@ public class RootLayoutController implements Initializable
         ));
 
         foundOnPageLabel.textProperty().bind(Bindings.concat(
-                "Found on Page: ", viewModel.referencePageProperty()
+                "Found on Page: ", viewModel.referencePageProperty(), " of ",
+                viewModel.totalPageCountInFileProperty()
         ));
         
         trailerPositionLabel.textProperty().bind(Bindings.concat(

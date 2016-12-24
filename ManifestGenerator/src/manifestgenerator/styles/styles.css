@@ -103,8 +103,8 @@ and open the template in the editor.
 }
 
 #manifestListView {
-    -fx-background-color: yellow;
-    -fx-orientation: horizontal;
+    -fx-orientation: horizontal;   
+    -fx-focus-traversable: false;
 }
 
 .manifest-vbox {
@@ -114,17 +114,18 @@ and open the template in the editor.
 }
 
 #routeLabel, #stopLabel {
-    -fx-font: 1em "Segoe UI";
-    -fx-font-weigth: bold;
+    -fx-font: 1.5em "Segoe UI";
+    -fx-font-weight: bold;
 }
 
 #caseTrailerPositionLabel {
-    -fx-font: 0.7em "Segoe UI";
+    -fx-font: 1em "Segoe UI";
+    -fx-font-weight: bold;
 }
 
 #cartTotalLabel {
     -fx-font: 1em "Segoe UI";
-    -fx-font-weigth: bold;
+    -fx-font-weight: bold;
 }
 
 #previousButton, #nextButton {

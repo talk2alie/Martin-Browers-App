@@ -21,35 +21,38 @@ import javafx.collections.ObservableList;
  */
 public class ManifestViewModel {
     
-    private IntegerProperty _referencePage;
-    private StringProperty _originalFileName;
-    private StringProperty _originalFilePath;
-    private StringProperty _trailerPosition;
-    private BooleanProperty _previewButtonDisabled;
-    private BooleanProperty _printButtonDisabled;
-    private BooleanProperty _exportButtonDisabled;
+    private IntegerProperty referencePage;
+    private StringProperty originalFileName;
+    private StringProperty originalFilePath;
+    private StringProperty trailerPosition;
+    private BooleanProperty previewButtonDisabled;
+    private BooleanProperty printButtonDisabled;
+    private BooleanProperty exportButtonDisabled;
+    private IntegerProperty totalPageCountInFile;
     
     public ManifestViewModel(Palette palette) {
         if(palette == null) {
-            _referencePage = new SimpleIntegerProperty(0);
-            _trailerPosition = new SimpleStringProperty("N/A");
-            _originalFileName = new SimpleStringProperty("N/A");
-            _originalFilePath = new SimpleStringProperty();
-            _previewButtonDisabled = new SimpleBooleanProperty(true);
-            _printButtonDisabled = new SimpleBooleanProperty(true);
-            _exportButtonDisabled = new SimpleBooleanProperty(true);
+            referencePage = new SimpleIntegerProperty();
+            trailerPosition = new SimpleStringProperty("N/A");
+            originalFileName = new SimpleStringProperty("N/A");
+            originalFilePath = new SimpleStringProperty();
+            previewButtonDisabled = new SimpleBooleanProperty(true);
+            printButtonDisabled = new SimpleBooleanProperty(true);
+            exportButtonDisabled = new SimpleBooleanProperty(true);
+            totalPageCountInFile = new SimpleIntegerProperty();
             return;
         }
         
-        _referencePage = 
+        referencePage = 
                 new SimpleIntegerProperty(palette.getReferencePage());
-        _trailerPosition = 
+        trailerPosition = 
                 new SimpleStringProperty(palette.TRAILER_POSITION);
-        _originalFileName = new SimpleStringProperty("N/A");
-        _originalFilePath = new SimpleStringProperty();
-        _previewButtonDisabled = new SimpleBooleanProperty(true);
-        _printButtonDisabled = new SimpleBooleanProperty(true);
-        _exportButtonDisabled = new SimpleBooleanProperty(true);
+        originalFileName = new SimpleStringProperty("N/A");
+        originalFilePath = new SimpleStringProperty();
+        previewButtonDisabled = new SimpleBooleanProperty(true);
+        printButtonDisabled = new SimpleBooleanProperty(true);
+        exportButtonDisabled = new SimpleBooleanProperty(true);
+        totalPageCountInFile = new SimpleIntegerProperty();
     }
     
     public ManifestViewModel() {
@@ -60,125 +63,137 @@ public class ManifestViewModel {
      * @return the _referencePage
      */
     public IntegerProperty referencePageProperty() {
-        return _referencePage;
+        return referencePage;
     }
 
     /**
      * @param _referencePage the _referencePage to set
      */
     public void setReferencePage(int referencePage) {
-        _referencePage.set(referencePage);
+        this.referencePage.set(referencePage);
     }
     
     public int getReferencePage() {
-        return _referencePage.get();
+        return referencePage.get();
     }
 
     /**
      * @return the _originalFileName
      */
     public StringProperty originalFileNameProperty() {
-        return _originalFileName;
+        return originalFileName;
     }
 
     /**
      * @param _originalFileName the _originalFileName to set
      */
     public void setOriginalFileName(String originalFileName) {
-        _originalFileName.set(originalFileName);
+        this.originalFileName.set(originalFileName);
     }
     
      public String getOriginalFileName() {
-        return _originalFileName.get();
+        return originalFileName.get();
     }
 
     /**
      * @return the _originalFilePath
      */
     public StringProperty originalFilePathProperty() {
-        return _originalFilePath;
+        return originalFilePath;
     }
 
     /**
      * @param _originalFilePath the _originalFilePath to set
      */
     public void setOriginalFilePath(String originalFilePath) {
-        _originalFilePath.set(originalFilePath);
+        this.originalFilePath.set(originalFilePath);
     }
     
     public String getOriginalFilePath() {
-        return _originalFilePath.get();
+        return originalFilePath.get();
     }
 
     /**
      * @return the _trailerPosition
      */
     public StringProperty trailerPositionProperty() {
-        return _trailerPosition;
+        return trailerPosition;
     }
 
     /**
      * @param _trailerPosition the _trailerPosition to set
      */
     public void setTrailerPosition(String trailerPosition) {
-        _trailerPosition.set(trailerPosition);
+        this.trailerPosition.set(trailerPosition);
     }
     
     public String getTrailerPosition() {
-        return _trailerPosition.get();
+        return trailerPosition.get();
     }
 
     /**
      * @return the _previewButtonEnabled
      */
     public BooleanProperty previewButtonDisabledProperty() {
-        return _previewButtonDisabled;
+        return previewButtonDisabled;
     }
 
     /**
      * @param _previewButtonEnabled the _previewButtonEnabled to set
      */
-    public void setPreviewButtonDisabled(boolean previewButtonEnabled) {
-        _previewButtonDisabled.set(previewButtonEnabled);
+    public void setPreviewButtonDisabled(boolean previewButtonDisabled) {
+        this.previewButtonDisabled.set(previewButtonDisabled);
     }
     
     public boolean getPreviewButtonDisabled() {
-        return _previewButtonDisabled.get();
+        return previewButtonDisabled.get();
     }
 
     /**
      * @return the _printButtonEnabled
      */
     public BooleanProperty printButtonDisabledProperty() {
-        return _printButtonDisabled;
+        return printButtonDisabled;
     }
 
     /**
      * @param _printButtonEnabled the _printButtonEnabled to set
      */
-    public void setPrintButtonDisabled(boolean printButtonEnabled) {
-        _printButtonDisabled.set(printButtonEnabled);
+    public void setPrintButtonDisabled(boolean printButtonDisabled) {
+        this.printButtonDisabled.set(printButtonDisabled);
     }
     
     public boolean getPrintButtonDisabled() {
-        return _printButtonDisabled.get();
+        return printButtonDisabled.get();
     }
 
     /**
      * @return the _exportButtonEnabled
      */
     public BooleanProperty exportButtonDisabledProperty() {
-        return _exportButtonDisabled;
+        return exportButtonDisabled;
     }
 
     /**
      * @param _exportButtonEnabled the _exportButtonEnabled to set
      */
-    public void setExportButtonDisabled(boolean exportButtonEnabled) {
-        _exportButtonDisabled.set(exportButtonEnabled);
+    public void setExportButtonDisabled(boolean exportButtonDisabled) {
+        this.exportButtonDisabled.set(exportButtonDisabled);
     }
     
     public boolean getExportButtonDisabled() {
-        return _exportButtonDisabled.get();
+        return exportButtonDisabled.get();
+    }
+    
+    public IntegerProperty totalPageCountInFileProperty() {
+        return totalPageCountInFile;
+    }
+    
+    public void setTotalPageCountInFile(int pageCount) {
+        this.totalPageCountInFile.set(pageCount);
+    }
+    
+    public int getTotalPageCountInFile() {
+        return totalPageCountInFile.get();
     }
 }
