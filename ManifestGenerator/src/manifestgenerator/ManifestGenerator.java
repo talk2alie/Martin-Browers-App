@@ -22,11 +22,13 @@ public class ManifestGenerator extends Application
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass()
-                .getResource("/manifestgenerator/views/RootLayout.fxml"));
+                .getResource("/manifestgenerator/views/RootLayout.fxml"));        
+                
+        Parent root = loader.load();
         
         rootController = loader.getController();
+        rootController.setMainStage(stage);
         
-        Parent root = loader.load();
         stage.setTitle("Manifest Generator");
         stage.setMinWidth(1024);
         stage.setMinHeight(768);

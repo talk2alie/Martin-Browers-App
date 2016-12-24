@@ -204,7 +204,7 @@ public class Palette
         StringBuilder builder = new StringBuilder();
 
         builder.append(",STOP,CASES,DESCRIPTION,WRIN,TRAILER,ROUTE\n");
-        for (Cases cases : getSortedCaseList()) {
+        getSortedCaseList().forEach((cases) -> {
             builder.append(",")
                     .append(cases.getStop())
                     .append(",")
@@ -218,8 +218,7 @@ public class Palette
                     .append(",")
                     .append(cases.getRoute())
                     .append("\n");
-
-        }
+        });
         builder.append("CART TOTAL:,,").append(_caseCount).append("\n");
 
         return builder.toString();

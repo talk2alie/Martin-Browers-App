@@ -37,6 +37,7 @@ public class PaletteManager
     public final ArrayList<Palette> PALETTES;
     private final Queue<Cases> _cases;
     private ArrayList<Palette> _palettes;
+    private int _totlaPageCount;
 
     private final String _wantedColumns;
     private int _rowCount;
@@ -82,6 +83,7 @@ public class PaletteManager
     }
 
     // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void initializePatterns() {
         SUMMARY_HEADER_PATTERN = Pattern.compile("\\b(ROUTE|WRIN|TRAILER\\s*(POSITION|POS)|STOP|CASES|DESCRIPTION)\\s*:{1}\\s*\\,+\\w+\\b");
@@ -272,6 +274,7 @@ public class PaletteManager
             if (pageNumber != null && pageNumber.length() > 0) {
                 // Set up current page
                 Page currentPage = new Page(Integer.parseInt(pageNumber));
+                _totlaPageCount++;
                 currentPage.SUMMARIES.putAll(_summaryHeaders);
                 currentPage.COLUMNS.addAll(getColumns());
                 PAGES.add(currentPage);
@@ -386,6 +389,10 @@ public class PaletteManager
         }
         
         writer.close();
+    }
+    
+    public int getTotlaPageCount() {
+        return _totlaPageCount;
     }
     
     // </editor-fold>
