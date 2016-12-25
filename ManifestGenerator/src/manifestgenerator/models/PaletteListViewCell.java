@@ -84,10 +84,10 @@ public class PaletteListViewCell extends ListCell<Palette> {
         casesTable.setItems(cases);
         itemIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("contentId"));
-        casesColumn.setCellValueFactory(
-                new PropertyValueFactory<>("quantity"));
         itemDescriptionColumn.setCellValueFactory(
                 new PropertyValueFactory<>("content"));
+        casesColumn.setCellValueFactory(
+                new PropertyValueFactory<>("quantity"));        
         
         cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount()); 
         
