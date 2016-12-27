@@ -5,6 +5,8 @@
  */
 package manifestgenerator;
 
+import com.sun.javafx.iio.ImageStorage;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,33 +15,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
+import javafx.print.PageRange;
 import javafx.print.Paper;
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import manifestgenerator.models.Cases;
+import manifestgenerator.models.PrintView;
 import manifestgenerator.models.ManifestViewModel;
 import manifestgenerator.models.Palette;
 import manifestgenerator.models.PaletteListViewCell;
@@ -71,49 +82,16 @@ public class RootLayoutController implements Initializable
     private final ObservableList<Palette> palettes;
 
     @FXML
-    private GridPane headerGrid;
-
-    @FXML
-    private Label titleLabel;
-
-    @FXML
-    private Label subTitleLabel;
-
-    @FXML
     private TextField browseTextField;
-
-    @FXML
-    private Button browseButton;
-
-    @FXML
-    private GridPane mainGrid;
-
-    @FXML
-    private GridPane previewGrid;
 
     @FXML
     private Button previewButton;
 
     @FXML
-    private GridPane contentGrid;
-
-    @FXML
-    private GridPane sliderGrid;
-
-    @FXML
     private Button previousButton;
 
     @FXML
-    private ScrollPane sliderScrollPane;
-
-    @FXML
-    private HBox manifestHBox;
-
-    @FXML
     private Button nextButton;
-
-    @FXML
-    private HBox manifestInfoHBox;
 
     @FXML
     private Label originalFileLabel;
@@ -125,9 +103,6 @@ public class RootLayoutController implements Initializable
     private Label trailerPositionLabel;
 
     @FXML
-    private GridPane footerGrid;
-
-    @FXML
     private Button printButton;
 
     @FXML
@@ -137,12 +112,25 @@ public class RootLayoutController implements Initializable
     private ListView<Palette> manifestListView;
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
     void onBrowseAction(ActionEvent event) {
         System.out.println("Browsing...");
 
+        // Clear everything
+        palettes.clear();
+        viewModel.setOriginalFilePath(null);
+        viewModel.setOriginalFileName("N/A");
+        viewModel.setPreviewButtonDisabled(Boolean.TRUE);
+        manifestListView.getSelectionModel().clearSelection();
+        viewModel.setTotalPageCountInFile(0);
+        viewModel.setPrintButtonDisabled(Boolean.TRUE);
+        viewModel.setExportButtonDisabled(Boolean.TRUE);
+        viewModel.setReferencePage(0);
+        viewModel.setTotalPageCountInFile(0);
+        viewModel.setTrailerPosition("N/A");
+
+        // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
         fileChooser.getExtensionFilters().clear();
@@ -204,12 +192,33 @@ public class RootLayoutController implements Initializable
     }
 
     @FXML
-    void onPrintAction(ActionEvent event) {
-        System.out.println("Printing Manifests...");
+    void onPrintAction(ActionEvent event) throws IOException {
+        
+        Printer defaultPrinter = Printer.getDefaultPrinter();
+        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER, 
+                PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
+        double printableWidth = layout.getPrintableWidth();
+        double printableHeight = layout.getPrintableHeight();
+        
+        PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
+        if(printerJob != null && printerJob.showPrintDialog(mainStage)){
+            ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
+            for(VBox vBox : pages) {
+                vBox.setPrefSize(printableWidth, printableHeight);
+                boolean printIsSuccessful = printerJob.printPage(vBox);
+                if(!printIsSuccessful) {
+                    // Bind the jobStatusProperty to some UI control
+                    // Notify user of a possible error
+                    printerJob.cancelJob();
+                    return;
+                }                          
+            }
+            printerJob.endJob();
+            // Notify user that this page has been sent to the printer      
+        }
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void createDocument(String fileName) throws FileNotFoundException,
             IOException {
@@ -225,7 +234,8 @@ public class RootLayoutController implements Initializable
         final int WRIN_COLUMN = 0;
         final int DESCRIPTION_COLUMN = 1;
         final int CASES_COLUMN = 2;
-        final int COLUMN_COUNT = 3;
+        final int STOP_COLUMN = 3;
+        final int COLUMN_COUNT = 4;
 
         InputStream baseFileStream = new FileInputStream("manifest_base.docx");
         XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
@@ -233,14 +243,15 @@ public class RootLayoutController implements Initializable
         for (Palette palette : palettes) {
             // Add 1 for header row
             int rowCount = palette.CASES.size() + 1;
+            List<Cases> allCases = palette.getSortedCaseList();
 
             // header
             XWPFParagraph headerParagraph = manifestDocument.createParagraph();
             headerParagraph.setStyle(HEADER_STYLE);
             XWPFRun headerRun = headerParagraph.createRun();
+
             headerRun.setText(String.format("Route: %s\t\t\t\tStop: %s",
-                    palette.CASES.get(0).getRoute(),
-                    palette.CASES.get(0).getStop()));
+                    palette.getRouteInfo(), palette.getStopInfo()));
 
             // Sub header
             XWPFParagraph subHeaderParagraph = manifestDocument
@@ -290,6 +301,10 @@ public class RootLayoutController implements Initializable
                         if (columnIndex == CASES_COLUMN) {
                             cellRun.setText("CASES");
                         }
+
+                        if (columnIndex == STOP_COLUMN) {
+                            cellRun.setText("STOP");
+                        }
                     }
                     else {
                         Cases cases = palette.getSortedCaseList()
@@ -307,6 +322,11 @@ public class RootLayoutController implements Initializable
                         if (columnIndex == CASES_COLUMN) {
                             cellRun.setText(
                                     String.format("%s", cases.getQuantity()));
+                        }
+
+                        if (columnIndex == STOP_COLUMN) {
+                            cellRun.setText(
+                                    String.format("%s", cases.getStop()));
                         }
                     }
                     columnIndex++;
@@ -332,22 +352,6 @@ public class RootLayoutController implements Initializable
         baseFileStream.close();
         manifestFileStream.close();
         manifestDocument.close();
-    }
-
-    private void print(final Node node) {
-        Printer printer = Printer.getDefaultPrinter();
-        PageLayout pageLayout = printer.createPageLayout(Paper.NA_LETTER, PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
-        double scaleX = pageLayout.getPrintableWidth() / node.getBoundsInParent().getWidth();
-        double scaleY = pageLayout.getPrintableHeight() / node.getBoundsInParent().getHeight();
-        node.getTransforms().add(new Scale(scaleX, scaleY));
-
-        PrinterJob job = PrinterJob.createPrinterJob();
-        if (job != null) {
-            boolean success = job.printPage(node);
-            if (success) {
-                job.endJob();
-            }
-        }
     }
 
     // </editor-fold>

@@ -223,4 +223,38 @@ public class Palette
 
         return builder.toString();
     }
+
+    /**
+     * Gets information about the route for case in this palette
+     *
+     * @return The route of the first type of case in this palette.
+     *         Note that this method assumes that all cases in this palette
+     *         are on the same route
+     */
+    public String getRouteInfo() {
+        if (CASES.size() == 0) {
+            return null;
+        }
+        return CASES.get(0).getRoute();
+    }
+    
+    /**
+     * Gets information about the stop for each type of case in this palette.
+     * If cases in this palette do not all belong to the same stop, all the 
+     * different stops are listed in a "/" separated string.
+     * 
+     * @return The stop for cases in this palette if there is a single stop;
+     * otherwise, a "/" separated list of all stops
+     */
+    public String getStopInfo() {
+        String current = getSortedCaseList().get(0).getStop();
+        String uniqueStops = current;
+        for(int i = 1; i < getSortedCaseList().size(); ++i) {
+            if(!getSortedCaseList().get(i).getStop().equals(current)) {
+                current = getSortedCaseList().get(i).getStop();
+                uniqueStops += "/" + current;
+            }
+        } 
+        return uniqueStops;
+    }
 }

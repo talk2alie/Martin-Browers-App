@@ -6,6 +6,7 @@
 package manifestgenerator.models;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -45,6 +46,9 @@ public class PaletteListViewCell extends ListCell<Palette> {
 
     @FXML
     private TableColumn<Cases, String> itemDescriptionColumn;
+    
+        @FXML
+    private TableColumn<Cases, String> stopColumn;
 
     @FXML
     private Label cartTotalLabel;
@@ -76,8 +80,8 @@ public class PaletteListViewCell extends ListCell<Palette> {
         
         ObservableList<Cases> cases = FXCollections
                 .observableArrayList(palette.getSortedCaseList());
-        routeLabel.setText(String.format("Route: %s", cases.get(0).getRoute()));
-        stopLabel.setText(String.format("Stop: %s", cases.get(0).getStop()));
+        routeLabel.setText(String.format("Route: %s", palette.getRouteInfo()));           
+        stopLabel.setText(String.format("Stop: %s", palette.getStopInfo()));
         caseTrailerPositionLabel.setText(String.format("Trailer Position: %s", 
                 palette.TRAILER_POSITION));
         
@@ -87,11 +91,13 @@ public class PaletteListViewCell extends ListCell<Palette> {
         itemDescriptionColumn.setCellValueFactory(
                 new PropertyValueFactory<>("content"));
         casesColumn.setCellValueFactory(
-                new PropertyValueFactory<>("quantity"));        
+                new PropertyValueFactory<>("quantity")); 
+        stopColumn.setCellValueFactory(
+                new PropertyValueFactory<>("stop"));
         
         cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount()); 
         
         setText(null);
         setGraphic(manifestVBox);
-    }
+    }    
 }
