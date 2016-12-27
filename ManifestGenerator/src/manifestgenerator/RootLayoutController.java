@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,13 +37,16 @@ import javafx.print.Printer;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -115,51 +119,23 @@ public class RootLayoutController implements Initializable
     @FXML
     private ListView<Palette> manifestListView;
 
+    @FXML
+    private MenuItem browseMenuItem;
+
+    @FXML
+    private MenuItem preferencesMenuItem;
+
+    @FXML
+    private MenuItem exitMenuItem;
+
+    @FXML
+    private MenuItem helpMenuItem;
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
     void onBrowseAction(ActionEvent event) {
-        System.out.println("Browsing...");
-
-        // Clear everything
-        palettes.clear();
-        viewModel.setOriginalFilePath(null);
-        viewModel.setOriginalFileName("N/A");
-        manifestListView.getSelectionModel().clearSelection();
-        viewModel.setTotalPageCountInFile(0);
-        viewModel.setPrintButtonDisabled(Boolean.TRUE);
-        viewModel.setExportButtonDisabled(Boolean.TRUE);
-        viewModel.setReferencePage(0);
-        viewModel.setTotalPageCountInFile(0);
-        viewModel.setTrailerPosition("N/A");
-
-        // Process new file
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Manifest Data File");
-        fileChooser.getExtensionFilters().clear();
-        fileChooser.getExtensionFilters()
-                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
-        File file = fileChooser.showOpenDialog(mainStage);
-        if (file != null) {
-            viewModel.setOriginalFilePath(file.getPath());
-            viewModel.setOriginalFileName(file.getName());
-
-            try {
-                PaletteManager paletteManager
-                        = new PaletteManager(viewModel.getOriginalFilePath());
-                palettes.addAll(paletteManager.PALETTES);
-                if (palettes.size() > 0) {
-                    manifestListView.getSelectionModel().select(0);
-                    viewModel.setTotalPageCountInFile(
-                            paletteManager.getTotlaPageCount());
-                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
-                    viewModel.setExportButtonDisabled(Boolean.FALSE);
-                }
-            }
-            catch (IOException ex) {
-                System.err.println(ex.getMessage());
-            }
-        }
+        onBrowse();
     }
 
     @FXML
@@ -212,6 +188,31 @@ public class RootLayoutController implements Initializable
             printerJob.endJob();
             // Notify user that this page has been sent to the printer      
         }
+    }
+
+    @FXML
+    void onHelpMenuAction(ActionEvent event) {
+        onHelpMenuAction();
+    }
+
+    @FXML
+    void onPreferencesAction(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onExit(ActionEvent event) {
+        Platform.exit();
+    }
+
+    @FXML
+    void onAboutAction(ActionEvent event) {
+        // Create a custom UI for this
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("About Manifest Generator");
+        alert.setContentText("We are awesome!!");
+        alert.showAndWait();
     }
 
     // </editor-fold>
@@ -350,6 +351,48 @@ public class RootLayoutController implements Initializable
         manifestDocument.close();
     }
 
+    private void onBrowse() {
+        // Clear everything
+        palettes.clear();
+        viewModel.setOriginalFilePath(null);
+        viewModel.setOriginalFileName("N/A");
+        manifestListView.getSelectionModel().clearSelection();
+        viewModel.setTotalPageCountInFile(0);
+        viewModel.setPrintButtonDisabled(Boolean.TRUE);
+        viewModel.setExportButtonDisabled(Boolean.TRUE);
+        viewModel.setReferencePage(0);
+        viewModel.setTotalPageCountInFile(0);
+        viewModel.setTrailerPosition("N/A");
+
+        // Process new file
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Manifest Data File");
+        fileChooser.getExtensionFilters().clear();
+        fileChooser.getExtensionFilters()
+                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
+        File file = fileChooser.showOpenDialog(mainStage);
+        if (file != null) {
+            viewModel.setOriginalFilePath(file.getPath());
+            viewModel.setOriginalFileName(file.getName());
+
+            try {
+                PaletteManager paletteManager
+                        = new PaletteManager(viewModel.getOriginalFilePath());
+                palettes.addAll(paletteManager.PALETTES);
+                if (palettes.size() > 0) {
+                    manifestListView.getSelectionModel().select(0);
+                    viewModel.setTotalPageCountInFile(
+                            paletteManager.getTotlaPageCount());
+                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
+                    viewModel.setExportButtonDisabled(Boolean.FALSE);
+                }
+            }
+            catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            }
+        }
+    }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Public Methods">
     /**
@@ -387,12 +430,23 @@ public class RootLayoutController implements Initializable
         trailerPositionLabel.textProperty().bind(Bindings.concat(
                 "Trailer Position: ", viewModel.trailerPositionProperty()
         ));
+
+        helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
     }
 
     public void setMainStage(Stage stage) {
         mainStage = stage;
     }
 
+    public void onHelpMenuAction() {
+        // Create a custom Web view for showing help files
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Help");
+        alert.setHeaderText("You are being helped!");
+        alert.setContentText("I am helping you now!!");
+        alert.showAndWait();
+    }
+    
     public RootLayoutController() {
         viewModel = new ManifestViewModel();
         palettes = FXCollections.observableArrayList();

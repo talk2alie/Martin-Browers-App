@@ -5,10 +5,15 @@
  */
 package manifestgenerator;
 
+import com.sun.applet2.preloader.event.ApplicationExitEvent;
 import javafx.application.Application;
+import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /**
@@ -33,8 +38,13 @@ public class ManifestGenerator extends Application
         stage.setMinWidth(1024);
         stage.setMinHeight(768);
         Scene scene = new Scene(root, 1024, 768);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if(event.getCode() == KeyCode.F1) {
+                rootController.onHelpMenuAction();
+            }
+        });   
         scene.getStylesheets().add("/manifestgenerator/styles/styles.css");
-        stage.setScene(scene);
+        stage.setScene(scene);  
         stage.show();
     }
 

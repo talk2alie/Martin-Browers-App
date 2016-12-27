@@ -192,3 +192,15 @@ and open the template in the editor.
     -fx-text-fill: #999999;
     -fx-font-style: italic;
 }
+
+.context-menu {
+    -fx-min-width: 200px;
+    -fx-margin-right: 20px;
+    -fx-padding: 1em 0;
+}
+
+.menu-item {
+    -fx-margin: 1em;
+    -fx-padding: 0.5em 1em;
+    -fx-min-width: 200px;
+}

@@ -4,9 +4,14 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -15,33 +20,6 @@
 <?import javafx.scene.layout.StackPane?>
 
 <BorderPane minHeight="768.0" minWidth="1024.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.RootLayoutController">
-   <top>
-      <GridPane fx:id="headerGrid" maxHeight="200.0" minWidth="150.0" BorderPane.alignment="CENTER">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
-            <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
-          <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
-          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints percentHeight="15.0" vgrow="SOMETIMES" />
-            <RowConstraints percentHeight="25.0" vgrow="SOMETIMES" />
-          <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
-          <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
-            <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
-            <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
-          <RowConstraints percentHeight="20.0" vgrow="SOMETIMES" />
-            <RowConstraints percentHeight="15.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Label fx:id="titleLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Martin Browers' Manifest Generator" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-            <Label fx:id="subTitleLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="1. Click  Browse to Select the CSV File with the Manifest Data   2. Click Preview Manifests to Generate Manifest Preview   3. Print or Export Manifests" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
-            <TextField fx:id="browseTextField" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Browse for CSV file with Manifest Data" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <Button fx:id="browseButton" defaultButton="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-         </children>
-      </GridPane>
-   </top>
    <center>
       <GridPane fx:id="mainGrid" BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -51,11 +29,14 @@
           <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
             <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4">
+            <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4" GridPane.rowIndex="3">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="90.0" />
@@ -68,12 +49,12 @@
                   <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
                      <children>
                         <ProgressBar fx:id="progressBar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" />
-                        <Label fx:id="progressLabel" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="80%" textAlignment="CENTER" StackPane.alignment="CENTER" />
+                        <Label fx:id="progressLabel" alignment="CENTER" maxHeight="42.0" maxWidth="1.7976931348623157E308" prefHeight="42.0" textAlignment="CENTER" StackPane.alignment="CENTER" />
                      </children>
                   </StackPane>
                </children>
             </GridPane>
-            <GridPane fx:id="contentGrid" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">
+            <GridPane fx:id="contentGrid" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
@@ -112,6 +93,8 @@
                   </HBox>
                </children>
             </GridPane>
+            <TextField fx:id="browseTextField" editable="false" maxHeight="42.0" maxWidth="1.7976931348623157E308" prefHeight="42.0" promptText="Browse for CSV file with Manifest Data" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="browseButton" defaultButton="true" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="1" />
          </children>
       </GridPane>
    </center>
@@ -134,4 +117,36 @@
          </children>
       </GridPane>
    </bottom>
+   <top>
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="browseMenuItem" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="B" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="preferencesMenuItem" mnemonicParsing="false" onAction="#onPreferencesAction" text="Preferences...                ">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onExit" text="Exit">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+                  <MenuItem fx:id="helpMenuItem" mnemonicParsing="false" onAction="#onHelpMenuAction" text="Manifest Generator Help       " />
+              <MenuItem mnemonicParsing="false" onAction="#onAboutAction" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
 </BorderPane>
