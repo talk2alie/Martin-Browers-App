@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 
 <BorderPane minHeight="768.0" minWidth="1024.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.RootLayoutController">
    <top>
@@ -56,15 +58,19 @@
             <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
-                <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
-                <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="90.0" />
                   <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints percentHeight="100.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="previewButton" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPreviewManifestsAction" text="Preview Manifests" GridPane.columnIndex="2" />
+                  <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
+                     <children>
+                        <ProgressBar fx:id="progressBar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" />
+                        <Label fx:id="progressLabel" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="80%" textAlignment="CENTER" StackPane.alignment="CENTER" />
+                     </children>
+                  </StackPane>
                </children>
             </GridPane>
             <GridPane fx:id="contentGrid" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1">

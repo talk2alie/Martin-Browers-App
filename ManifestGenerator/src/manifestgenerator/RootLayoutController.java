@@ -39,6 +39,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
@@ -85,7 +86,10 @@ public class RootLayoutController implements Initializable
     private TextField browseTextField;
 
     @FXML
-    private Button previewButton;
+    private ProgressBar progressBar;
+
+    @FXML
+    private Label progressLabel;
 
     @FXML
     private Button previousButton;
@@ -121,7 +125,6 @@ public class RootLayoutController implements Initializable
         palettes.clear();
         viewModel.setOriginalFilePath(null);
         viewModel.setOriginalFileName("N/A");
-        viewModel.setPreviewButtonDisabled(Boolean.TRUE);
         manifestListView.getSelectionModel().clearSelection();
         viewModel.setTotalPageCountInFile(0);
         viewModel.setPrintButtonDisabled(Boolean.TRUE);
@@ -141,7 +144,21 @@ public class RootLayoutController implements Initializable
             viewModel.setOriginalFilePath(file.getPath());
             viewModel.setOriginalFileName(file.getName());
 
-            viewModel.setPreviewButtonDisabled(Boolean.FALSE);
+            try {
+                PaletteManager paletteManager
+                        = new PaletteManager(viewModel.getOriginalFilePath());
+                palettes.addAll(paletteManager.PALETTES);
+                if (palettes.size() > 0) {
+                    manifestListView.getSelectionModel().select(0);
+                    viewModel.setTotalPageCountInFile(
+                            paletteManager.getTotlaPageCount());
+                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
+                    viewModel.setExportButtonDisabled(Boolean.FALSE);
+                }
+            }
+            catch (IOException ex) {
+                System.err.println(ex.getMessage());
+            }
         }
     }
 
@@ -171,47 +188,26 @@ public class RootLayoutController implements Initializable
     }
 
     @FXML
-    void onPreviewManifestsAction(ActionEvent event) {
-        System.out.println("Previewing Manifests...");
-
-        try {
-            PaletteManager paletteManager
-                    = new PaletteManager(viewModel.getOriginalFilePath());
-            palettes.addAll(paletteManager.PALETTES);
-            if (paletteManager.PALETTES.size() > 0) {
-                manifestListView.getSelectionModel().select(0);
-                viewModel.setTotalPageCountInFile(
-                        paletteManager.getTotlaPageCount());
-                viewModel.setPrintButtonDisabled(Boolean.FALSE);
-                viewModel.setExportButtonDisabled(Boolean.FALSE);
-            }
-        }
-        catch (IOException ex) {
-            System.err.println(ex.getMessage());
-        }
-    }
-
-    @FXML
     void onPrintAction(ActionEvent event) throws IOException {
-        
+
         Printer defaultPrinter = Printer.getDefaultPrinter();
-        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER, 
+        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                 PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
         double printableWidth = layout.getPrintableWidth();
         double printableHeight = layout.getPrintableHeight();
-        
+
         PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
-        if(printerJob != null && printerJob.showPrintDialog(mainStage)){
+        if (printerJob != null && printerJob.showPrintDialog(mainStage)) {
             ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
-            for(VBox vBox : pages) {
+            for (VBox vBox : pages) {
                 vBox.setPrefSize(printableWidth, printableHeight);
                 boolean printIsSuccessful = printerJob.printPage(vBox);
-                if(!printIsSuccessful) {
+                if (!printIsSuccessful) {
                     // Bind the jobStatusProperty to some UI control
                     // Notify user of a possible error
                     printerJob.cancelJob();
                     return;
-                }                          
+                }
             }
             printerJob.endJob();
             // Notify user that this page has been sent to the printer      
@@ -364,8 +360,6 @@ public class RootLayoutController implements Initializable
 
         browseTextField.textProperty()
                 .bind(viewModel.originalFilePathProperty());
-        previewButton.disableProperty()
-                .bind(viewModel.previewButtonDisabledProperty());
         printButton.disableProperty()
                 .bind(viewModel.printButtonDisabledProperty());
         exportButton.disableProperty()
@@ -375,8 +369,10 @@ public class RootLayoutController implements Initializable
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
         manifestListView.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    viewModel.setTrailerPosition(newValue.TRAILER_POSITION);
-                    viewModel.setReferencePage(newValue.getReferencePage());
+                    if (newValue != null) {
+                        viewModel.setTrailerPosition(newValue.TRAILER_POSITION);
+                        viewModel.setReferencePage(newValue.getReferencePage());
+                    }
                 });
 
         originalFileLabel.textProperty().bind(Bindings.concat(

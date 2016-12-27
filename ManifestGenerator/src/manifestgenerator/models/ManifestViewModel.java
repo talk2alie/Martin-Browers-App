@@ -25,7 +25,6 @@ public class ManifestViewModel {
     private StringProperty originalFileName;
     private StringProperty originalFilePath;
     private StringProperty trailerPosition;
-    private BooleanProperty previewButtonDisabled;
     private BooleanProperty printButtonDisabled;
     private BooleanProperty exportButtonDisabled;
     private IntegerProperty totalPageCountInFile;
@@ -36,7 +35,6 @@ public class ManifestViewModel {
             trailerPosition = new SimpleStringProperty("N/A");
             originalFileName = new SimpleStringProperty("N/A");
             originalFilePath = new SimpleStringProperty();
-            previewButtonDisabled = new SimpleBooleanProperty(true);
             printButtonDisabled = new SimpleBooleanProperty(true);
             exportButtonDisabled = new SimpleBooleanProperty(true);
             totalPageCountInFile = new SimpleIntegerProperty();
@@ -49,7 +47,6 @@ public class ManifestViewModel {
                 new SimpleStringProperty(palette.TRAILER_POSITION);
         originalFileName = new SimpleStringProperty("N/A");
         originalFilePath = new SimpleStringProperty();
-        previewButtonDisabled = new SimpleBooleanProperty(true);
         printButtonDisabled = new SimpleBooleanProperty(true);
         exportButtonDisabled = new SimpleBooleanProperty(true);
         totalPageCountInFile = new SimpleIntegerProperty();
@@ -129,24 +126,6 @@ public class ManifestViewModel {
     
     public String getTrailerPosition() {
         return trailerPosition.get();
-    }
-
-    /**
-     * @return the _previewButtonEnabled
-     */
-    public BooleanProperty previewButtonDisabledProperty() {
-        return previewButtonDisabled;
-    }
-
-    /**
-     * @param _previewButtonEnabled the _previewButtonEnabled to set
-     */
-    public void setPreviewButtonDisabled(boolean previewButtonDisabled) {
-        this.previewButtonDisabled.set(previewButtonDisabled);
-    }
-    
-    public boolean getPreviewButtonDisabled() {
-        return previewButtonDisabled.get();
     }
 
     /**
