@@ -5,16 +5,12 @@
 
 package manifestgenerator.models;
 
-import java.util.ArrayList;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
-import javafx.collections.ObservableList;
 
 /**
  *
@@ -29,29 +25,29 @@ public class ManifestViewModel {
     private BooleanProperty printButtonDisabled;
     private BooleanProperty exportButtonDisabled;
     private IntegerProperty totalPageCountInFile;
+    private BooleanProperty previousButtonDisabled;
+    private BooleanProperty nextButtonDisabled;
+    private IntegerProperty currentIndex;
     
     public ManifestViewModel(Palette palette) {
         if(palette == null) {
             referencePage = new SimpleIntegerProperty();
-            currentPageInManifest = new SimpleIntegerProperty();
-            totalPagesInManifest = new SimpleIntegerProperty();
-            originalFileName = new SimpleStringProperty("N/A");
-            originalFilePath = new SimpleStringProperty();
-            printButtonDisabled = new SimpleBooleanProperty(true);
-            exportButtonDisabled = new SimpleBooleanProperty(true);
-            totalPageCountInFile = new SimpleIntegerProperty();
-            return;
+        }
+        else {
+            referencePage = new SimpleIntegerProperty(palette.getReferencePage());
         }
         
-        referencePage = 
-                new SimpleIntegerProperty(palette.getReferencePage());
-        currentPageInManifest = new SimpleIntegerProperty(0);
-        totalPagesInManifest = new SimpleIntegerProperty(0);
+        
+        currentPageInManifest = new SimpleIntegerProperty();
+        totalPagesInManifest = new SimpleIntegerProperty();
         originalFileName = new SimpleStringProperty("N/A");
         originalFilePath = new SimpleStringProperty();
         printButtonDisabled = new SimpleBooleanProperty(true);
         exportButtonDisabled = new SimpleBooleanProperty(true);
         totalPageCountInFile = new SimpleIntegerProperty();
+        previousButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
+        nextButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
+        currentIndex = new SimpleIntegerProperty();
     }
     
     public ManifestViewModel() {
@@ -195,4 +191,60 @@ public class ManifestViewModel {
     public int getTotalPageCountInFile() {
         return totalPageCountInFile.get();
     }
+
+    /**
+     * @return the previousButtonDisabled
+     */
+    public BooleanProperty previousButtonDisabledProperty() {
+        return previousButtonDisabled;
+    }
+    
+    public boolean getPreviousButtonDisabled() {
+        return previousButtonDisabled.get();
+    }
+
+    /**
+     * @param previousButtonDisabled the previousButtonDisabled to set
+     */
+    public void setPreviousButtonDisabled(boolean previousButtonDisabled) {
+        this.previousButtonDisabled.set(previousButtonDisabled);
+    }
+
+    /**
+     * @return the nextButtonDisabled
+     */
+    public BooleanProperty nextButtonDisabledProperty() {
+        return nextButtonDisabled;
+    }
+    
+    public boolean getNextButtonDisabled() {
+        return nextButtonDisabled.get();
+    }
+
+    /**
+     * @param nextButtonDisabled the nextButtonDisabled to set
+     */
+    public void setNextButtonDisabled(boolean nextButtonDisabled) {
+        this.nextButtonDisabled.set(nextButtonDisabled);
+    }
+
+    /**
+     * @return the currentIndex
+     */
+    public IntegerProperty currentIndexProperty() {
+        return currentIndex;
+    }
+    
+    public int getCurrentIndex() {
+        return currentIndex.get();
+    }
+
+    /**
+     * @param currentIndex the currentIndex to set
+     */
+    public void setCurrentIndex(int currentIndex) {
+        this.currentIndex.set(currentIndex);
+    }
+    
+       
 }

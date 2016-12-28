@@ -207,4 +207,5 @@ and open the template in the editor.
 
 .tool-tip {
     -fx-background-radius: 0;
+    -fx-font: 1em "Segoe UI";
 }
