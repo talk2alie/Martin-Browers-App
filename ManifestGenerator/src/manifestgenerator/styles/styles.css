@@ -147,7 +147,7 @@ and open the template in the editor.
     -fx-background-color: #eeeeee;
 }
 
-#originalFileLabel, #foundOnPageLabel, #trailerPositionLabel {
+#originalFileLabel, #foundOnPageLabel, #manifestPositionLabel {
     -fx-alignment: center;
 }
 
@@ -203,4 +203,8 @@ and open the template in the editor.
     -fx-margin: 1em;
     -fx-padding: 0.5em 1em;
     -fx-min-width: 200px;
+}
+
+.tool-tip {
+    -fx-background-radius: 0;
 }

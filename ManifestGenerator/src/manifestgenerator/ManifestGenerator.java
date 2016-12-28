@@ -6,8 +6,10 @@
 package manifestgenerator;
 
 import com.sun.applet2.preloader.event.ApplicationExitEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.event.EventType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -21,30 +23,46 @@ import javafx.stage.Stage;
  * @author talk2
  */
 public class ManifestGenerator extends Application
-{   
+{
+
     private RootLayoutController rootController;
-    
+
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass()
-                .getResource("/manifestgenerator/views/RootLayout.fxml"));        
-                
+                .getResource("/manifestgenerator/views/RootLayout.fxml"));
+
         Parent root = loader.load();
-        
+
         rootController = loader.getController();
         rootController.setMainStage(stage);
-        
+
         stage.setTitle("Manifest Generator");
         stage.setMinWidth(1024);
         stage.setMinHeight(768);
         Scene scene = new Scene(root, 1024, 768);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if(event.getCode() == KeyCode.F1) {
+            if (event.getCode() == KeyCode.F1) {
                 rootController.onHelpMenuAction();
             }
-        });   
+        });
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.P) {
+                try {
+                    rootController.onPrint();
+                }
+                catch (IOException ex) {
+                    // TODO: Log error and report it
+                }
+            }
+        });
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.W) {
+                rootController.onExportToWord();
+            }
+        });
         scene.getStylesheets().add("/manifestgenerator/styles/styles.css");
-        stage.setScene(scene);  
+        stage.setScene(scene);
         stage.show();
     }
 
@@ -53,5 +71,5 @@ public class ManifestGenerator extends Application
      */
     public static void main(String[] args) {
         launch(args);
-    }    
+    }
 }

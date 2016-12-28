@@ -45,6 +45,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
@@ -108,7 +109,7 @@ public class RootLayoutController implements Initializable
     private Label foundOnPageLabel;
 
     @FXML
-    private Label trailerPositionLabel;
+    private Label manifestPositionLabel;
 
     @FXML
     private Button printButton;
@@ -130,7 +131,7 @@ public class RootLayoutController implements Initializable
 
     @FXML
     private MenuItem helpMenuItem;
-
+    
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
@@ -140,55 +141,13 @@ public class RootLayoutController implements Initializable
 
     @FXML
     void onExportAction(ActionEvent event) {
-        System.out.println("Exporting Manifests...");
-        Date cureentDate = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
-        String intialFileName = String.format("Manifest_%s",
-                dateFormat.format(cureentDate));
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Manifests");
-        fileChooser.getExtensionFilters().clear();
-        fileChooser.getExtensionFilters().add(
-                new ExtensionFilter("Microsoft Word", "*.docx"));
-        fileChooser.setInitialFileName(intialFileName);
-        File fileName = fileChooser.showSaveDialog(mainStage);
-
-        try {
-            createDocument(fileName.getPath());
-        }
-        catch (IOException ex) {
-            System.err.println(ex.getMessage());
-        }
-
+        onExportToWord();
     }
 
     @FXML
     void onPrintAction(ActionEvent event) throws IOException {
-
-        Printer defaultPrinter = Printer.getDefaultPrinter();
-        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
-                PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
-        double printableWidth = layout.getPrintableWidth();
-        double printableHeight = layout.getPrintableHeight();
-
-        PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
-        if (printerJob != null && printerJob.showPrintDialog(mainStage)) {
-            ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
-            for (VBox vBox : pages) {
-                vBox.setPrefSize(printableWidth, printableHeight);
-                boolean printIsSuccessful = printerJob.printPage(vBox);
-                if (!printIsSuccessful) {
-                    // Bind the jobStatusProperty to some UI control
-                    // Notify user of a possible error
-                    printerJob.cancelJob();
-                    return;
-                }
-            }
-            printerJob.endJob();
-            // Notify user that this page has been sent to the printer      
-        }
-    }
+        onPrint();
+    }    
 
     @FXML
     void onHelpMenuAction(ActionEvent event) {
@@ -197,7 +156,12 @@ public class RootLayoutController implements Initializable
 
     @FXML
     void onPreferencesAction(ActionEvent event) {
-
+        // TODO: Create custom UI
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Preferences");
+        alert.setHeaderText("Edit your preferences here...");
+        alert.setContentText("Here are you rpreferences");
+        alert.showAndWait();
     }
 
     @FXML
@@ -362,7 +326,8 @@ public class RootLayoutController implements Initializable
         viewModel.setExportButtonDisabled(Boolean.TRUE);
         viewModel.setReferencePage(0);
         viewModel.setTotalPageCountInFile(0);
-        viewModel.setTrailerPosition("N/A");
+        viewModel.setCurrentPageInManifest(0);
+        viewModel.setTotalPagesInManifest(0);
 
         // Process new file
         FileChooser fileChooser = new FileChooser();
@@ -393,6 +358,64 @@ public class RootLayoutController implements Initializable
         }
     }
 
+    public void onExportToWord() {
+
+        if(exportButton.isDisabled()) {
+            return;
+        }
+        
+        Date cureentDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
+        String intialFileName = String.format("Manifest_%s",
+                dateFormat.format(cureentDate));
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Manifests to MS Word");
+        fileChooser.getExtensionFilters().clear();
+        fileChooser.getExtensionFilters().add(
+                new ExtensionFilter("Microsoft Word", "*.docx"));
+        fileChooser.setInitialFileName(intialFileName);
+        File file = fileChooser.showSaveDialog(mainStage);
+        if(file == null) {
+            return;
+        }
+
+        try {
+            createDocument(file.getPath());
+        }
+        catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
+    
+    public void onPrint() throws IOException {
+        
+        if(printButton.isDisabled()) {
+            return;
+        }
+        
+        Printer defaultPrinter = Printer.getDefaultPrinter();
+        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
+                PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
+        double printableWidth = layout.getPrintableWidth();
+        double printableHeight = layout.getPrintableHeight();
+        PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
+        if (printerJob != null && printerJob.showPrintDialog(mainStage)) {
+            ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
+            for (VBox vBox : pages) {
+                vBox.setPrefSize(printableWidth, printableHeight);
+                boolean printIsSuccessful = printerJob.printPage(vBox);
+                if (!printIsSuccessful) {
+                    // Bind the jobStatusProperty to some UI control
+                    // Notify user of a possible error
+                    printerJob.cancelJob();
+                    return;
+                }
+            }
+            printerJob.endJob();
+            // Notify user that this page has been sent to the printer      
+        }
+    }
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Public Methods">
     /**
@@ -406,14 +429,18 @@ public class RootLayoutController implements Initializable
         printButton.disableProperty()
                 .bind(viewModel.printButtonDisabledProperty());
         exportButton.disableProperty()
-                .bind(viewModel.exportButtonDisabledProperty());
+                .bind(viewModel.exportButtonDisabledProperty());        
 
         manifestListView.setItems(palettes);
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
         manifestListView.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
-                        viewModel.setTrailerPosition(newValue.TRAILER_POSITION);
+                        viewModel.setCurrentPageInManifest(
+                                manifestListView.getSelectionModel()
+                                        .getSelectedIndex() + 1
+                        );
+                        viewModel.setTotalPagesInManifest(palettes.size());
                         viewModel.setReferencePage(newValue.getReferencePage());
                     }
                 });
@@ -427,8 +454,10 @@ public class RootLayoutController implements Initializable
                 viewModel.totalPageCountInFileProperty()
         ));
 
-        trailerPositionLabel.textProperty().bind(Bindings.concat(
-                "Trailer Position: ", viewModel.trailerPositionProperty()
+        manifestPositionLabel.textProperty().bind(Bindings.concat(
+                "Manifest: Page " , 
+                viewModel.currentPageInManifestProperty(),
+                " of ", viewModel.totalPagesInManifestProperty()
         ));
 
         helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));

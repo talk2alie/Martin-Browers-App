@@ -24,7 +24,8 @@ public class ManifestViewModel {
     private IntegerProperty referencePage;
     private StringProperty originalFileName;
     private StringProperty originalFilePath;
-    private StringProperty trailerPosition;
+    private IntegerProperty currentPageInManifest;
+    private IntegerProperty totalPagesInManifest;
     private BooleanProperty printButtonDisabled;
     private BooleanProperty exportButtonDisabled;
     private IntegerProperty totalPageCountInFile;
@@ -32,7 +33,8 @@ public class ManifestViewModel {
     public ManifestViewModel(Palette palette) {
         if(palette == null) {
             referencePage = new SimpleIntegerProperty();
-            trailerPosition = new SimpleStringProperty("N/A");
+            currentPageInManifest = new SimpleIntegerProperty();
+            totalPagesInManifest = new SimpleIntegerProperty();
             originalFileName = new SimpleStringProperty("N/A");
             originalFilePath = new SimpleStringProperty();
             printButtonDisabled = new SimpleBooleanProperty(true);
@@ -43,8 +45,8 @@ public class ManifestViewModel {
         
         referencePage = 
                 new SimpleIntegerProperty(palette.getReferencePage());
-        trailerPosition = 
-                new SimpleStringProperty(palette.TRAILER_POSITION);
+        currentPageInManifest = new SimpleIntegerProperty(0);
+        totalPagesInManifest = new SimpleIntegerProperty(0);
         originalFileName = new SimpleStringProperty("N/A");
         originalFilePath = new SimpleStringProperty();
         printButtonDisabled = new SimpleBooleanProperty(true);
@@ -113,19 +115,37 @@ public class ManifestViewModel {
     /**
      * @return the _trailerPosition
      */
-    public StringProperty trailerPositionProperty() {
-        return trailerPosition;
+    public IntegerProperty currentPageInManifestProperty() {
+        return currentPageInManifest;
     }
 
     /**
      * @param _trailerPosition the _trailerPosition to set
      */
-    public void setTrailerPosition(String trailerPosition) {
-        this.trailerPosition.set(trailerPosition);
+    public void setCurrentPageInManifest(int currentPageInManifest) {
+        this.currentPageInManifest.set(currentPageInManifest);
     }
     
-    public String getTrailerPosition() {
-        return trailerPosition.get();
+    public int getCurrentPageInManifest() {
+        return currentPageInManifest.get();
+    }
+    
+    /**
+     * @return the _trailerPosition
+     */
+    public IntegerProperty totalPagesInManifestProperty() {
+        return totalPagesInManifest;
+    }
+
+    /**
+     * @param _trailerPosition the _trailerPosition to set
+     */
+    public void setTotalPagesInManifest(int totalPagesInManifest) {
+        this.totalPagesInManifest.set(totalPagesInManifest);
+    }
+    
+    public int getTotalPagesInManifest() {
+        return totalPagesInManifest.get();
     }
 
     /**

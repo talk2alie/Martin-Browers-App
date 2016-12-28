@@ -11,6 +11,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -88,13 +89,16 @@
                         <Separator maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" />
                         <Label fx:id="foundOnPageLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Found on Page: 5 of 195" />
                         <Separator maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" />
-                        <Label fx:id="trailerPositionLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Trailer Position: 0RL" />
+                        <Label fx:id="manifestPositionLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Manifest: Page 1 of 195" />
                      </children>
                   </HBox>
                </children>
             </GridPane>
             <TextField fx:id="browseTextField" editable="false" maxHeight="42.0" maxWidth="1.7976931348623157E308" prefHeight="42.0" promptText="Browse for CSV file with Manifest Data" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Button fx:id="browseButton" defaultButton="true" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button fx:id="browseButton" defaultButton="true" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="1">
+               <tooltip>
+                  <Tooltip fx:id="browseTooltip" styleClass="tool-tip" text="Browse for Manifest Data (Ctrl+B)" />
+               </tooltip></Button>
          </children>
       </GridPane>
    </center>
@@ -112,8 +116,14 @@
           <RowConstraints percentHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="printButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrintAction" text="Print" GridPane.columnIndex="2" />
-            <Button fx:id="exportButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onExportAction" text="Export to Word" GridPane.columnIndex="3" />
+            <Button fx:id="printButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrintAction" text="Print" GridPane.columnIndex="2">
+               <tooltip>
+                  <Tooltip fx:id="printTooltip" styleClass="tool-tip" text="Print Manifests (Ctrl+P)" wrapText="true" />
+               </tooltip></Button>
+            <Button fx:id="exportButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onExportAction" text="Export to Word" GridPane.columnIndex="3">
+               <tooltip>
+                  <Tooltip fx:id="exportTooltip" styleClass="tool-tip" text="Export Manifests to MS Word (Ctrl+W)" wrapText="true" />
+               </tooltip></Button>
          </children>
       </GridPane>
    </bottom>
@@ -129,7 +139,7 @@
                   </MenuItem>
                   <MenuItem fx:id="preferencesMenuItem" mnemonicParsing="false" onAction="#onPreferencesAction" text="Preferences...                ">
                      <accelerator>
-                        <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
