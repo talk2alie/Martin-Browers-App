@@ -101,6 +101,13 @@ and open the template in the editor.
     -fx-focus-traversable: false;
 }
 
+#manifestListView .scroll-bar:horizontal .increment-arrow,
+#manifestListView .scroll-bar:horizontal .decrement-arrow,
+#manifestListView .scroll-bar:horizontal .increment-button,
+#manifestListView .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}
+
 #manifestVBox {
     -fx-border-color: #000000;
     -fx-border-width: 1px;

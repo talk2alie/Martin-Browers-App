@@ -40,7 +40,8 @@ public class ManifestGenerator extends Application
         stage.setTitle("Manifest Generator");
         stage.setMinWidth(1024);
         stage.setMinHeight(768);
-        Scene scene = new Scene(root, 1024, 768);
+        stage.setMaximized(Boolean.TRUE);
+        Scene scene = new Scene(root);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.F1) {
                 rootController.onHelpMenuAction();

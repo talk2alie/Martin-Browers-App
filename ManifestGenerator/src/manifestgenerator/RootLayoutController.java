@@ -5,8 +5,6 @@
  */
 package manifestgenerator;
 
-import com.sun.javafx.iio.ImageStorage;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,43 +15,29 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
-import javafx.print.PageRange;
 import javafx.print.Paper;
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
-import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -136,6 +120,7 @@ public class RootLayoutController implements Initializable
     
     
     // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
     void onBrowseAction(ActionEvent event) {
@@ -502,8 +487,7 @@ public class RootLayoutController implements Initializable
         alert.setContentText("I am helping you now!!");
         alert.showAndWait();
     }
-    
-    
+        
     public void scrollNext() {
         int pagesInView = manifestListView.lookupAll("#manifestVBox").size();
         viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
