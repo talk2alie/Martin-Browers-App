@@ -25,7 +25,7 @@ and open the template in the editor.
     -fx-alignment: center;
 }
 
-#browseTextField {
+#browseTextField, .text-field {
     -fx-background-radius: 0;
     -fx-background-color: #cccccc;
     -fx-font: 1.2em "Segoe UI";
@@ -33,7 +33,7 @@ and open the template in the editor.
     -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
 }
 
-#browseButton, #printButton, #exportButton {
+#browseButton, #printButton, #exportButton, .default-button {
     -fx-background-radius: 0;
     -fx-background-color: rgba(204, 204, 204, 1);
     -fx-font: 1.2em "Segoe UI";
@@ -43,12 +43,12 @@ and open the template in the editor.
     -fx-background-insets: 0;
 }
 
-#browseButton:hover {
+#browseButton:hover, .default-button:hover {
     -fx-cursor: hand;
     -fx-background-color: rgba(204, 204, 204, 0.8);
 }
 
-#browseButton:pressed {
+#browseButton:pressed, .default-button:pressed {
     -fx-background-color: #dddddd;
 }
 
@@ -216,3 +216,4 @@ and open the template in the editor.
     -fx-background-radius: 0;
     -fx-font: 1em "Segoe UI";
 }
+

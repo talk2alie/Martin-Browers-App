@@ -5,6 +5,8 @@
  */
 package manifestgenerator;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,12 +25,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
 import javafx.print.Paper;
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -37,9 +41,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import manifestgenerator.models.Cases;
 import manifestgenerator.models.PrintView;
@@ -47,6 +53,7 @@ import manifestgenerator.models.ManifestViewModel;
 import manifestgenerator.models.Palette;
 import manifestgenerator.models.PaletteListViewCell;
 import manifestgenerator.models.PaletteManager;
+import manifestgenerator.models.PreferencesViewModel;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -65,13 +72,14 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
  *
  * @author talk2
  */
-public class RootLayoutController implements Initializable
-{
+public class RootLayoutController implements Initializable {
     // <editor-fold defaultstate="collapsed" desc="Fields">
-
     private Stage mainStage;
     private final ManifestViewModel viewModel;
     private final ObservableList<Palette> palettes;
+    private PreferencesViewModel preferencesViewModel;
+    private final String PREFERENCES = "Preferences.xml";
+    private PreferencesController preferencesController;
 
     @FXML
     private TextField browseTextField;
@@ -116,9 +124,8 @@ public class RootLayoutController implements Initializable
     private MenuItem exitMenuItem;
 
     @FXML
-    private MenuItem helpMenuItem;   
-    
-    
+    private MenuItem helpMenuItem;
+
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
@@ -135,7 +142,7 @@ public class RootLayoutController implements Initializable
     @FXML
     void onPrintAction(ActionEvent event) throws IOException {
         onPrint();
-    }    
+    }
 
     @FXML
     void onHelpMenuAction(ActionEvent event) {
@@ -144,12 +151,36 @@ public class RootLayoutController implements Initializable
 
     @FXML
     void onPreferencesAction(ActionEvent event) {
-        // TODO: Create custom UI
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Preferences");
-        alert.setHeaderText("Edit your preferences here...");
-        alert.setContentText("Here are you rpreferences");
-        alert.showAndWait();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass()
+                    .getResource("/manifestgenerator/views/Preferences.fxml"));
+            BorderPane page = loader.load();
+
+            preferencesController = loader.getController();
+            preferencesController.setStage(mainStage);
+            preferencesController.setViewModel(preferencesViewModel.getDefaultInputDirectory(), 
+                    preferencesViewModel.getDefaultOutputDirectory());
+
+            Stage preferencesDialog = new Stage();
+            preferencesDialog.setResizable(Boolean.FALSE);
+            preferencesDialog.setTitle("Modify Preferences");
+            preferencesDialog.initModality(Modality.WINDOW_MODAL);
+            preferencesDialog.initOwner(mainStage);
+            final int WIDTH = 700, HEIGHT = 200;
+            Scene preferencesScene = new Scene(page, WIDTH, HEIGHT);
+            preferencesDialog.setScene(preferencesScene);
+            preferencesDialog.setOnCloseRequest(closeEvent -> {
+                System.out.println("Preferences closed");
+                preferencesController.savePreferences(PREFERENCES);
+                preferencesDialog.close();
+                closeEvent.consume();
+            });
+
+            preferencesDialog.showAndWait();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @FXML
@@ -166,12 +197,12 @@ public class RootLayoutController implements Initializable
         alert.setContentText("We are awesome!!");
         alert.showAndWait();
     }
-    
+
     @FXML
     void onPreviousScroll(ActionEvent event) {
         scrollPrevious();
     }
-    
+
     @FXML
     void onNextScroll(ActionEvent event) {
         scrollNext();
@@ -264,8 +295,7 @@ public class RootLayoutController implements Initializable
                         if (columnIndex == STOP_COLUMN) {
                             cellRun.setText("STOP");
                         }
-                    }
-                    else {
+                    } else {
                         Cases cases = palette.getSortedCaseList()
                                 .get(rowIndex - 1);
                         cellParagraph.setAlignment(ParagraphAlignment.LEFT);
@@ -329,13 +359,18 @@ public class RootLayoutController implements Initializable
         viewModel.setCurrentIndex(0);
         viewModel.setNextButtonDisabled(Boolean.TRUE);
         viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-
+              
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
         fileChooser.getExtensionFilters().clear();
         fileChooser.getExtensionFilters()
-                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
+                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));        
+        if(preferencesViewModel.getDefaultInputDirectory() != null) {
+            File inputDirectory = 
+                    new File(preferencesViewModel.getDefaultInputDirectory());
+            fileChooser.setInitialDirectory(inputDirectory);
+        }        
         File file = fileChooser.showOpenDialog(mainStage);
         if (file != null) {
             viewModel.setOriginalFilePath(file.getPath());
@@ -351,14 +386,13 @@ public class RootLayoutController implements Initializable
                             paletteManager.getTotlaPageCount());
                     viewModel.setPrintButtonDisabled(Boolean.FALSE);
                     viewModel.setExportButtonDisabled(Boolean.FALSE);
-                    viewModel.setPrintButtonDisabled(Boolean.FALSE);                    
-                    if(palettes.size() > manifestListView
-                            .lookupAll("#manifestVBox").size()){
+                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
+                    if (palettes.size() > manifestListView
+                            .lookupAll("#manifestVBox").size()) {
                         viewModel.setNextButtonDisabled(Boolean.FALSE);
                     }
                 }
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             }
         }
@@ -378,7 +412,7 @@ public class RootLayoutController implements Initializable
         printButton.disableProperty()
                 .bind(viewModel.printButtonDisabledProperty());
         exportButton.disableProperty()
-                .bind(viewModel.exportButtonDisabledProperty());        
+                .bind(viewModel.exportButtonDisabledProperty());
 
         manifestListView.setItems(palettes);
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
@@ -404,7 +438,7 @@ public class RootLayoutController implements Initializable
         ));
 
         manifestPositionLabel.textProperty().bind(Bindings.concat(
-                "Manifest: Page " , 
+                "Manifest: Page ",
                 viewModel.currentPageInManifestProperty(),
                 " of ", viewModel.totalPagesInManifestProperty()
         ));
@@ -422,10 +456,10 @@ public class RootLayoutController implements Initializable
 
     public void onExportToWord() {
 
-        if(exportButton.isDisabled()) {
+        if (exportButton.isDisabled()) {
             return;
         }
-        
+
         Date cureentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
         String intialFileName = String.format("Manifest_%s",
@@ -436,26 +470,30 @@ public class RootLayoutController implements Initializable
         fileChooser.getExtensionFilters().clear();
         fileChooser.getExtensionFilters().add(
                 new ExtensionFilter("Microsoft Word", "*.docx"));
+        if(preferencesViewModel.getDefaultInputDirectory() != null) {
+            File inputDirectory = 
+                    new File(preferencesViewModel.getDefaultInputDirectory());
+            fileChooser.setInitialDirectory(inputDirectory);
+        }
         fileChooser.setInitialFileName(intialFileName);
         File file = fileChooser.showSaveDialog(mainStage);
-        if(file == null) {
+        if (file == null) {
             return;
         }
 
         try {
             createDocument(file.getPath());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
     }
-    
+
     public void onPrint() throws IOException {
-        
-        if(printButton.isDisabled()) {
+
+        if (printButton.isDisabled()) {
             return;
         }
-        
+
         Printer defaultPrinter = Printer.getDefaultPrinter();
         PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                 PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
@@ -478,7 +516,7 @@ public class RootLayoutController implements Initializable
             // Notify user that this page has been sent to the printer      
         }
     }
-    
+
     public void onHelpMenuAction() {
         // Create a custom Web view for showing help files
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -487,36 +525,65 @@ public class RootLayoutController implements Initializable
         alert.setContentText("I am helping you now!!");
         alert.showAndWait();
     }
-        
+
     public void scrollNext() {
         int pagesInView = manifestListView.lookupAll("#manifestVBox").size();
         viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
-        if(viewModel.getCurrentIndex() >= palettes.size()) {
-            viewModel.setNextButtonDisabled(Boolean.TRUE);            
-        }
-        else {
+        if (viewModel.getCurrentIndex() >= palettes.size()) {
+            viewModel.setNextButtonDisabled(Boolean.TRUE);
+        } else {
             viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
         viewModel.setPreviousButtonDisabled(Boolean.FALSE);
     }
-    
+
     public void scrollPrevious() {
         int pagesInView = manifestListView.lookupAll("#manifestVBox").size();
         viewModel.setCurrentIndex(viewModel.getCurrentIndex() - pagesInView);
-        if(viewModel.getCurrentIndex() <= 0) {            
+        if (viewModel.getCurrentIndex() <= 0) {
             viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-        }
-        else {
+        } else {
             viewModel.setPreviousButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
         viewModel.setNextButtonDisabled(Boolean.FALSE);
     }
-    
+
     public RootLayoutController() {
         viewModel = new ManifestViewModel();
         palettes = FXCollections.observableArrayList();
+        FileInputStream stream = null;
+        try {
+            File file = new File(PREFERENCES);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            stream = new FileInputStream(PREFERENCES);
+            XMLDecoder decoder = new XMLDecoder(stream);
+            if(file.length() > 0){
+                preferencesViewModel = (PreferencesViewModel)decoder.readObject();
+            }else{
+                preferencesViewModel = new PreferencesViewModel();
+            }            
+            decoder.close();
+        }catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch(IOException ex){
+            ex.printStackTrace();
+        } finally {
+            try {
+                if(stream != null){
+                    stream.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        if(preferencesViewModel == null){
+            preferencesViewModel = new PreferencesViewModel();
+        }
     }
 
     // </editor-fold>

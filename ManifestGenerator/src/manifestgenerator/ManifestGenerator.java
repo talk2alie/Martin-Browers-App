@@ -31,7 +31,6 @@ public class ManifestGenerator extends Application
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass()
                 .getResource("/manifestgenerator/views/RootLayout.fxml"));
-
         Parent root = loader.load();
 
         rootController = loader.getController();
