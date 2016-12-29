@@ -6,7 +6,6 @@
 package manifestgenerator;
 
 import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -72,13 +71,15 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
  *
  * @author talk2
  */
-public class RootLayoutController implements Initializable {
+public class RootLayoutController
+        implements Initializable {
+
     // <editor-fold defaultstate="collapsed" desc="Fields">
     private Stage mainStage;
     private final ManifestViewModel viewModel;
     private final ObservableList<Palette> palettes;
     private PreferencesViewModel preferencesViewModel;
-    private final String PREFERENCES = "Preferences.xml";
+    private final String PREFERENCES = "preferences.xml";
     private PreferencesController preferencesController;
 
     @FXML
@@ -127,7 +128,6 @@ public class RootLayoutController implements Initializable {
     private MenuItem helpMenuItem;
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
     void onBrowseAction(ActionEvent event) {
@@ -158,7 +158,8 @@ public class RootLayoutController implements Initializable {
 
             preferencesController = loader.getController();
             preferencesController.setStage(mainStage);
-            preferencesController.setViewModel(preferencesViewModel.getDefaultInputDirectory(), 
+            preferencesController.setViewModel(preferencesViewModel
+                    .getDefaultInputDirectory(),
                     preferencesViewModel.getDefaultOutputDirectory());
 
             Stage preferencesDialog = new Stage();
@@ -191,10 +192,29 @@ public class RootLayoutController implements Initializable {
     @FXML
     void onAboutAction(ActionEvent event) {
         // Create a custom UI for this
+
+        String about = "Manifest Generator reads an in-house (specific) CSV "
+                + "file and collects route data for various trailers and their "
+                + "respective palettes.\n\r"
+                + "The application was written by students from the "
+                + "Computer Sceince Club at West Chester University "
+                + "of Pennsylvania.\n\r"
+                + "Team Members Include:\n"
+                + "Adrian Rodriguez\n"
+                + "Gina Dedes\n"
+                + "Jason Jackson\n"
+                + "Mohamed Pussah\n"
+                + "Patrick Savella\n"
+                + "Won Murdocq\n"
+                + "----------------------------------------------------------------------\n"
+                + "Apllication Support:\n"
+                + "Adrian Rodriguez (rodriguez.adrian609@gmail.com|609 403 0337)\n"
+                + "Mohamed Pussah (talk2alie@outlook.com|267 357 6840)";
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
         alert.setHeaderText("About Manifest Generator");
-        alert.setContentText("We are awesome!!");
+        alert.setContentText(about);
         alert.showAndWait();
     }
 
@@ -209,7 +229,6 @@ public class RootLayoutController implements Initializable {
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void createDocument(String fileName) throws FileNotFoundException,
             IOException {
@@ -253,7 +272,8 @@ public class RootLayoutController implements Initializable {
 
             XWPFTable casesTable = manifestDocument
                     .createTable(rowCount, COLUMN_COUNT);
-            CTTblPr tableProperties = casesTable.getCTTbl().getTblPr();
+            CTTblPr tableProperties = casesTable.getCTTbl()
+                    .getTblPr();
             CTString styleStr = tableProperties.addNewTblStyle();
             styleStr.setVal(TABLE_STYLE);
 
@@ -266,13 +286,16 @@ public class RootLayoutController implements Initializable {
                 // Add content to each cell
                 for (XWPFTableCell cell : cells) {
                     // Get a table cell properties element (tcPr)
-                    CTTcPr cellProperties = cell.getCTTc().addNewTcPr();
+                    CTTcPr cellProperties = cell.getCTTc()
+                            .addNewTcPr();
                     // Set vertical alignment to "center"
-                    CTVerticalJc verticalAlignment = cellProperties.addNewVAlign();
+                    CTVerticalJc verticalAlignment = cellProperties
+                            .addNewVAlign();
                     verticalAlignment.setVal(STVerticalJc.CENTER);
 
                     // Get 1st paragraph in cell's paragraph list
-                    XWPFParagraph cellParagraph = cell.getParagraphs().get(0);
+                    XWPFParagraph cellParagraph = cell.getParagraphs()
+                            .get(0);
                     // Create a run to contain the content
                     XWPFRun cellRun = cellParagraph.createRun();
                     // Set values
@@ -348,7 +371,8 @@ public class RootLayoutController implements Initializable {
         palettes.clear();
         viewModel.setOriginalFilePath(null);
         viewModel.setOriginalFileName("N/A");
-        manifestListView.getSelectionModel().clearSelection();
+        manifestListView.getSelectionModel()
+                .clearSelection();
         viewModel.setTotalPageCountInFile(0);
         viewModel.setPrintButtonDisabled(Boolean.TRUE);
         viewModel.setExportButtonDisabled(Boolean.TRUE);
@@ -359,36 +383,39 @@ public class RootLayoutController implements Initializable {
         viewModel.setCurrentIndex(0);
         viewModel.setNextButtonDisabled(Boolean.TRUE);
         viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-              
+
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
-        fileChooser.getExtensionFilters().clear();
         fileChooser.getExtensionFilters()
-                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));        
-        if(preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory = 
+                .clear();
+        fileChooser.getExtensionFilters()
+                .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
+        if (preferencesViewModel.getDefaultInputDirectory() != null) {
+            File inputDirectory =
                     new File(preferencesViewModel.getDefaultInputDirectory());
             fileChooser.setInitialDirectory(inputDirectory);
-        }        
+        }
         File file = fileChooser.showOpenDialog(mainStage);
         if (file != null) {
             viewModel.setOriginalFilePath(file.getPath());
             viewModel.setOriginalFileName(file.getName());
 
             try {
-                PaletteManager paletteManager
-                        = new PaletteManager(viewModel.getOriginalFilePath());
+                PaletteManager paletteManager =
+                        new PaletteManager(viewModel.getOriginalFilePath());
                 palettes.addAll(paletteManager.PALETTES);
                 if (palettes.size() > 0) {
-                    manifestListView.getSelectionModel().select(0);
+                    manifestListView.getSelectionModel()
+                            .select(0);
                     viewModel.setTotalPageCountInFile(
                             paletteManager.getTotlaPageCount());
                     viewModel.setPrintButtonDisabled(Boolean.FALSE);
                     viewModel.setExportButtonDisabled(Boolean.FALSE);
                     viewModel.setPrintButtonDisabled(Boolean.FALSE);
                     if (palettes.size() > manifestListView
-                            .lookupAll("#manifestVBox").size()) {
+                            .lookupAll("#manifestVBox")
+                            .size()) {
                         viewModel.setNextButtonDisabled(Boolean.FALSE);
                     }
                 }
@@ -399,7 +426,6 @@ public class RootLayoutController implements Initializable {
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc="Public Methods">
     /**
      * Initializes the controller class.
@@ -416,7 +442,8 @@ public class RootLayoutController implements Initializable {
 
         manifestListView.setItems(palettes);
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
-        manifestListView.getSelectionModel().selectedItemProperty()
+        manifestListView.getSelectionModel()
+                .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
                         viewModel.setCurrentPageInManifest(
@@ -428,20 +455,24 @@ public class RootLayoutController implements Initializable {
                     }
                 });
 
-        originalFileLabel.textProperty().bind(Bindings.concat(
-                "Original File: ", viewModel.originalFileNameProperty()
-        ));
+        originalFileLabel.textProperty()
+                .bind(Bindings.concat(
+                        "Original File: ", viewModel.originalFileNameProperty()
+                ));
 
-        foundOnPageLabel.textProperty().bind(Bindings.concat(
-                "Found on Page: ", viewModel.referencePageProperty(), " of ",
-                viewModel.totalPageCountInFileProperty()
-        ));
+        foundOnPageLabel.textProperty()
+                .bind(Bindings.concat(
+                        "Found on Page: ", viewModel.referencePageProperty(),
+                        " of ",
+                        viewModel.totalPageCountInFileProperty()
+                ));
 
-        manifestPositionLabel.textProperty().bind(Bindings.concat(
-                "Manifest: Page ",
-                viewModel.currentPageInManifestProperty(),
-                " of ", viewModel.totalPagesInManifestProperty()
-        ));
+        manifestPositionLabel.textProperty()
+                .bind(Bindings.concat(
+                        "Manifest: Page ",
+                        viewModel.currentPageInManifestProperty(),
+                        " of ", viewModel.totalPagesInManifestProperty()
+                ));
 
         helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
         previousButton.disableProperty()
@@ -467,11 +498,13 @@ public class RootLayoutController implements Initializable {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Manifests to MS Word");
-        fileChooser.getExtensionFilters().clear();
-        fileChooser.getExtensionFilters().add(
-                new ExtensionFilter("Microsoft Word", "*.docx"));
-        if(preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory = 
+        fileChooser.getExtensionFilters()
+                .clear();
+        fileChooser.getExtensionFilters()
+                .add(
+                        new ExtensionFilter("Microsoft Word", "*.docx"));
+        if (preferencesViewModel.getDefaultInputDirectory() != null) {
+            File inputDirectory =
                     new File(preferencesViewModel.getDefaultInputDirectory());
             fileChooser.setInitialDirectory(inputDirectory);
         }
@@ -527,7 +560,8 @@ public class RootLayoutController implements Initializable {
     }
 
     public void scrollNext() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox").size();
+        int pagesInView = manifestListView.lookupAll("#manifestVBox")
+                .size();
         viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
         if (viewModel.getCurrentIndex() >= palettes.size()) {
             viewModel.setNextButtonDisabled(Boolean.TRUE);
@@ -539,7 +573,8 @@ public class RootLayoutController implements Initializable {
     }
 
     public void scrollPrevious() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox").size();
+        int pagesInView = manifestListView.lookupAll("#manifestVBox")
+                .size();
         viewModel.setCurrentIndex(viewModel.getCurrentIndex() - pagesInView);
         if (viewModel.getCurrentIndex() <= 0) {
             viewModel.setPreviousButtonDisabled(Boolean.TRUE);
@@ -556,32 +591,33 @@ public class RootLayoutController implements Initializable {
         FileInputStream stream = null;
         try {
             File file = new File(PREFERENCES);
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.createNewFile();
             }
             stream = new FileInputStream(PREFERENCES);
             XMLDecoder decoder = new XMLDecoder(stream);
-            if(file.length() > 0){
-                preferencesViewModel = (PreferencesViewModel)decoder.readObject();
-            }else{
+            if (file.length() > 0) {
+                preferencesViewModel = (PreferencesViewModel)decoder
+                        .readObject();
+            } else {
                 preferencesViewModel = new PreferencesViewModel();
-            }            
+            }
             decoder.close();
-        }catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-        } catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
             try {
-                if(stream != null){
+                if (stream != null) {
                     stream.close();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        
-        if(preferencesViewModel == null){
+
+        if (preferencesViewModel == null) {
             preferencesViewModel = new PreferencesViewModel();
         }
     }
