@@ -6,8 +6,10 @@
 package manifestgenerator.models;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -28,6 +30,8 @@ public class ManifestViewModel {
     private BooleanProperty previousButtonDisabled;
     private BooleanProperty nextButtonDisabled;
     private IntegerProperty currentIndex;
+    private DoubleProperty progress;
+    private StringProperty progressText;
     
     public ManifestViewModel(Palette palette) {
         if(palette == null) {
@@ -48,6 +52,8 @@ public class ManifestViewModel {
         previousButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
         nextButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
         currentIndex = new SimpleIntegerProperty();
+        progress = new SimpleDoubleProperty();
+        progressText = new SimpleStringProperty();
     }
     
     public ManifestViewModel() {
@@ -244,6 +250,42 @@ public class ManifestViewModel {
      */
     public void setCurrentIndex(int currentIndex) {
         this.currentIndex.set(currentIndex);
+    }
+
+    /**
+     * @return the progress
+     */
+    public DoubleProperty progressProperty() {
+        return progress;
+    }
+    
+    public double getProgress() {
+        return progress.get();
+    }
+
+    /**
+     * @param progress the progress to set
+     */
+    public void setProgress(double progress) {
+        this.progress.set(progress);
+    }
+
+    /**
+     * @return the progressText
+     */
+    public StringProperty progressTextProperty() {
+        return progressText;
+    }
+    
+    public String getProgressText() {
+        return progressText.get();
+    }
+
+    /**
+     * @param progressText the progressText to set
+     */
+    public void setProgressText(String progressText) {
+        this.progressText.set(progressText);
     }
     
        

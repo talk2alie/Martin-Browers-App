@@ -72,7 +72,8 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
  * @author talk2
  */
 public class RootLayoutController
-        implements Initializable {
+        implements Initializable
+{
 
     // <editor-fold defaultstate="collapsed" desc="Fields">
     private Stage mainStage;
@@ -140,7 +141,7 @@ public class RootLayoutController
     }
 
     @FXML
-    void onPrintAction(ActionEvent event) throws IOException {
+    void onPrintAction(ActionEvent event) throws IOException, InterruptedException {
         onPrint();
     }
 
@@ -179,7 +180,8 @@ public class RootLayoutController
 
             preferencesDialog.showAndWait();
 
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             ex.printStackTrace();
         }
     }
@@ -232,6 +234,8 @@ public class RootLayoutController
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void createDocument(String fileName) throws FileNotFoundException,
             IOException {
+        viewModel.setProgress(0);
+        viewModel.setProgressText("Creating Manifest Exports...");
         // Styles
         final String CART_STYLE = "MartinBrowersCartTotal";
         final String HEADER_STYLE = "MartinBrowersPageHeader";
@@ -249,8 +253,14 @@ public class RootLayoutController
         InputStream baseFileStream = new FileInputStream("manifest_base.docx");
         XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
 
+        int manifestCount = 0;
+        int totalManifestCount = palettes.size();
         for (Palette palette : palettes) {
             // Add 1 for header row
+            String message = String.format("Exporting page %s of %s...",
+                    ++manifestCount, totalManifestCount);
+            viewModel.setProgressText(message);
+            viewModel.setProgress(manifestCount / totalManifestCount);
             int rowCount = palette.CASES.size() + 1;
             List<Cases> allCases = palette.getSortedCaseList();
 
@@ -318,7 +328,8 @@ public class RootLayoutController
                         if (columnIndex == STOP_COLUMN) {
                             cellRun.setText("STOP");
                         }
-                    } else {
+                    }
+                    else {
                         Cases cases = palette.getSortedCaseList()
                                 .get(rowIndex - 1);
                         cellParagraph.setAlignment(ParagraphAlignment.LEFT);
@@ -359,14 +370,25 @@ public class RootLayoutController
             closingParagraph.setPageBreak(true);
         } // for palette
 
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Saving manifest file...");
+
         FileOutputStream manifestFileStream = new FileOutputStream(fileName);
         manifestDocument.write(manifestFileStream);
         baseFileStream.close();
         manifestFileStream.close();
         manifestDocument.close();
+        viewModel.setProgress(0);
+        viewModel.setProgressText("Done Exporting...");
     }
 
     private void onBrowse() {
+        // TODO: The notification currently used in the app is terrible.
+        //       In subsequent releases, we will modify it to make use of
+        //       Threads
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Clearing all states...");
+
         // Clear everything
         palettes.clear();
         viewModel.setOriginalFilePath(null);
@@ -384,6 +406,7 @@ public class RootLayoutController
         viewModel.setNextButtonDisabled(Boolean.TRUE);
         viewModel.setPreviousButtonDisabled(Boolean.TRUE);
 
+        viewModel.setProgressText("Building Manifests, Please Wait...");
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
@@ -392,8 +415,8 @@ public class RootLayoutController
         fileChooser.getExtensionFilters()
                 .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
         if (preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory =
-                    new File(preferencesViewModel.getDefaultInputDirectory());
+            File inputDirectory
+                    = new File(preferencesViewModel.getDefaultInputDirectory());
             fileChooser.setInitialDirectory(inputDirectory);
         }
         File file = fileChooser.showOpenDialog(mainStage);
@@ -402,8 +425,8 @@ public class RootLayoutController
             viewModel.setOriginalFileName(file.getName());
 
             try {
-                PaletteManager paletteManager =
-                        new PaletteManager(viewModel.getOriginalFilePath());
+                PaletteManager paletteManager
+                        = new PaletteManager(viewModel.getOriginalFilePath());
                 palettes.addAll(paletteManager.PALETTES);
                 if (palettes.size() > 0) {
                     manifestListView.getSelectionModel()
@@ -419,9 +442,20 @@ public class RootLayoutController
                         viewModel.setNextButtonDisabled(Boolean.FALSE);
                     }
                 }
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
             }
+            catch (IOException ex) {
+                // Error Code MB001 - Manifest Building 001
+                viewModel.setProgressText("There was an error. Code: MB001.");
+                ex.printStackTrace();
+            }
+            finally {
+                viewModel.setProgress(0);
+                viewModel.setProgressText("");
+            }
+        }
+        else {
+            viewModel.setProgress(0);
+            viewModel.setProgressText("");
         }
     }
 
@@ -479,6 +513,8 @@ public class RootLayoutController
                 .bind(viewModel.previousButtonDisabledProperty());
         nextButton.disableProperty()
                 .bind(viewModel.nextButtonDisabledProperty());
+        progressBar.progressProperty().bind(viewModel.progressProperty());
+        progressLabel.textProperty().bind(viewModel.progressTextProperty());
     }
 
     public void setMainStage(Stage stage) {
@@ -504,8 +540,8 @@ public class RootLayoutController
                 .add(
                         new ExtensionFilter("Microsoft Word", "*.docx"));
         if (preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory =
-                    new File(preferencesViewModel.getDefaultInputDirectory());
+            File inputDirectory
+                    = new File(preferencesViewModel.getDefaultInputDirectory());
             fileChooser.setInitialDirectory(inputDirectory);
         }
         fileChooser.setInitialFileName(intialFileName);
@@ -516,13 +552,16 @@ public class RootLayoutController
 
         try {
             createDocument(file.getPath());
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
     }
 
-    public void onPrint() throws IOException {
+    public void onPrint() throws IOException, InterruptedException {
 
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Printing...");
         if (printButton.isDisabled()) {
             return;
         }
@@ -546,7 +585,11 @@ public class RootLayoutController
                 }
             }
             printerJob.endJob();
-            // Notify user that this page has been sent to the printer      
+            // Notify user that this page has been sent to the printer 
+            viewModel.setProgress(0);
+            viewModel.setProgressText("Done Printing...");
+            Thread.sleep(1000);
+            viewModel.setProgressText("");
         }
     }
 
@@ -565,7 +608,8 @@ public class RootLayoutController
         viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
         if (viewModel.getCurrentIndex() >= palettes.size()) {
             viewModel.setNextButtonDisabled(Boolean.TRUE);
-        } else {
+        }
+        else {
             viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
@@ -578,7 +622,8 @@ public class RootLayoutController
         viewModel.setCurrentIndex(viewModel.getCurrentIndex() - pagesInView);
         if (viewModel.getCurrentIndex() <= 0) {
             viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-        } else {
+        }
+        else {
             viewModel.setPreviousButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
@@ -597,22 +642,27 @@ public class RootLayoutController
             stream = new FileInputStream(PREFERENCES);
             XMLDecoder decoder = new XMLDecoder(stream);
             if (file.length() > 0) {
-                preferencesViewModel = (PreferencesViewModel)decoder
+                preferencesViewModel = (PreferencesViewModel) decoder
                         .readObject();
-            } else {
+            }
+            else {
                 preferencesViewModel = new PreferencesViewModel();
             }
             decoder.close();
-        } catch (FileNotFoundException ex) {
+        }
+        catch (FileNotFoundException ex) {
             ex.printStackTrace();
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
+        }
+        finally {
             try {
                 if (stream != null) {
                     stream.close();
                 }
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
