@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane minHeight="200.0" minWidth="600.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.PreferencesController">
+   <top>
+      <GridPane maxHeight="200.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="90.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Preferences" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <font>
+                  <Font name="Segoe UI Light" size="32.0" />
+               </font>
+            </Label>
+            <Label text="Changes made in this dialog will take effect upon application restart." GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+            </Label>
+         </children>
+      </GridPane>
+   </top>
+   <center>
+      <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="25.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="15.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Default Input Directory:" GridPane.columnIndex="1" />
+            <Label text="Default Output Directory:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="inputDirectoryTextField" editable="false" maxHeight="32.0" maxWidth="1.7976931348623157E308" promptText="Choose Input Directory" styleClass="text-field" GridPane.columnIndex="2" />
+            <TextField fx:id="outputDirectoryTextField" editable="false" maxHeight="32.0" maxWidth="1.7976931348623157E308" promptText="Choose Output Directory" styleClass="text-field" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button fx:id="inputDirectoryBrowseButton" maxHeight="32.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onInputBrowse" styleClass="default-button" text="Browse" GridPane.columnIndex="3" />
+            <Button fx:id="outputDirectoryBrowseButton" maxHeight="32.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onOutputBrowse" styleClass="default-button" text="Browse" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+   </center>
+</BorderPane>

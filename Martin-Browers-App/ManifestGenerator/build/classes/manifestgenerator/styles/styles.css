@@ -1,0 +1,219 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 22, 2016, 2:11:14 PM
+    Author     : talk2
+*/
+.root {
+    -fx-background-color: #eeeeee;
+}
+
+#headerGrid, #mainGrid, #footerGrid, #previewGrid {
+    -fx-hgap: 1em;
+}
+
+#titleLabel {
+    -fx-font: 3em "Segoe UI Light";    
+    -fx-alignment: center;   
+}
+
+#subTitleLabel {
+    -fx-font: 1.2em "Segoe UI";
+    -fx-alignment: center;
+}
+
+#browseTextField, .text-field {
+    -fx-background-radius: 0;
+    -fx-background-color: #cccccc;
+    -fx-font: 1.2em "Segoe UI";
+    -fx-font-style: italic;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
+}
+
+#browseButton, #printButton, #exportButton, .default-button {
+    -fx-background-radius: 0;
+    -fx-background-color: rgba(204, 204, 204, 1);
+    -fx-font: 1.2em "Segoe UI";
+    -fx-text-fill: #666666;
+    -fx-font-weight: bold;
+    -fx-border: none;
+    -fx-background-insets: 0;
+}
+
+#browseButton:hover, .default-button:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.8);
+}
+
+#browseButton:pressed, .default-button:pressed {
+    -fx-background-color: #dddddd;
+}
+
+#mainGrid, #footerGrid {
+    -fx-background-color: rgba(221, 221, 221, 0.6);
+}
+
+#previewGrid {
+    -fx-background-color: rgba(221, 221, 221, 1);
+    -fx-padding: 0;
+}
+
+#previewButton {
+    -fx-background-color: rgba(102, 102, 102, 1);
+    -fx-text-fill: #cccccc;
+    -fx-font: 1.2em "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-background-radius: 0;
+    -fx-border: none;
+    -fx-background-insets: 0;
+}
+
+#previewButton:hover {
+    -fx-background-color: rgba(102, 102, 102, 0.9);
+    -fx-cursor: hand;
+}
+
+#previewButton:pressed {
+    -fx-background-color: #555555;
+    -fx-cursor: hand;
+}
+
+#printButton:hover, #exportButton:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.7);
+}
+
+#printButton:pressed, #exportButton:pressed {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(204, 204, 204, 0.5);
+}
+
+#manifestInfoHBox {
+    -fx-alignment: center;
+    -fx-spacing: 1em;
+}
+
+#manifestListView {
+    -fx-orientation: horizontal;   
+    -fx-focus-traversable: false;
+}
+
+#manifestListView .scroll-bar:horizontal .increment-arrow,
+#manifestListView .scroll-bar:horizontal .decrement-arrow,
+#manifestListView .scroll-bar:horizontal .increment-button,
+#manifestListView .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}
+
+#manifestVBox {
+    -fx-border-color: #000000;
+    -fx-border-width: 1px;
+    -fx-background-color: #ffffff;
+    -fx-spacing: 20;
+}
+
+#routeLabel, #stopLabel {
+    -fx-font: 1.5em "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+#caseTrailerPositionLabel {
+    -fx-font: 1em "Segoe UI";
+    -fx-font-weight: bold;
+}
+
+#cartTotalLabel {
+    -fx-font: 1em "Segoe UI";
+    -fx-font-weight: bold;
+}
+
+#previousButton, #nextButton {
+    -fx-background-insets: 0;
+    -fx-background-color: #eeeeee;
+    -fx-border: none;
+    -fx-background-radius: 0;
+}
+
+#previousButton {
+    -fx-graphic: url('/manifestgenerator/resources/chev-left.png');
+}
+
+#nextButton {
+    -fx-graphic: url('/manifestgenerator/resources/chev-right.png');
+}
+
+#previousButton:hover, #nextButton:hover {
+    -fx-cursor: hand;    
+}
+
+#contentGrid, #sliderScrollPane {
+    -fx-background-color: #eeeeee;
+}
+
+#originalFileLabel, #foundOnPageLabel, #manifestPositionLabel {
+    -fx-alignment: center;
+}
+
+#manifestPage {
+    -fx-padding: 2em;
+    -fx-background-color: #ffffff;
+    -fx-spacing: 20;
+}
+
+#progressBar {
+    -fx-indeterminate-bar-length: 60;
+    -fx-indeterminate-bar-escape: true;
+    -fx-indeterminate-bar-flip: true;
+    -fx-indeterminate-bar-animation-time: 2;
+}
+
+#progressBar > .bar {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
+
+#progressBar:indeterminate > .bar, #progressBar:determinate > .bar {
+    -fx-background-color: rgba(102, 102, 102, 1);
+    -fx-background-radius: 0;
+}
+
+#progressBar:indeterminate > .track, #progressBar:determinate > .track {   
+    -fx-background-insets: 0;
+    -fx-background-radius: 0; 
+}
+
+#progressBar > .track {    
+    -fx-background-color:#dddddd;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0; 
+}
+
+#progressLabel {
+    -fx-alignment: CENTER;
+    -fx-font: 1.5em "Segoe UI Black";
+    -fx-text-fill: #999999;
+    -fx-font-style: italic;
+}
+
+.context-menu {
+    -fx-min-width: 200px;
+    -fx-margin-right: 20px;
+    -fx-padding: 1em 0;
+}
+
+.menu-item {
+    -fx-margin: 1em;
+    -fx-padding: 0.5em 1em;
+    -fx-min-width: 200px;
+}
+
+.tool-tip {
+    -fx-background-radius: 0;
+    -fx-font: 1em "Segoe UI";
+}
+
