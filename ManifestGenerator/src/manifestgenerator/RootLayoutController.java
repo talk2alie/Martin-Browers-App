@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -131,18 +132,41 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
-    void onBrowseAction(ActionEvent event) {
-        onBrowse();
+    void onBrowseAction(ActionEvent event) throws InterruptedException {        
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Building Manifest Preview...");      
+        
+        onBrowse();        
+        
+        viewModel.setProgress(0);
+        viewModel.setProgressText("");
     }
 
     @FXML
-    void onExportAction(ActionEvent event) {
+    void onExportAction(ActionEvent event) throws InterruptedException {
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Exporting to Word...");
+        
         onExportToWord();
+        
+        viewModel.setProgress(0);
+        viewModel.setProgressText("Done Exporting...");
+        Thread.sleep(1000);
+        viewModel.setProgressText("");
     }
 
     @FXML
     void onPrintAction(ActionEvent event) throws IOException, InterruptedException {
+
+        viewModel.setProgress(-1);
+        viewModel.setProgressText("Printing...");
+        
         onPrint();
+        
+        viewModel.setProgress(0);
+        viewModel.setProgressText("Done Printing...");
+        Thread.sleep(1000);
+        viewModel.setProgressText("");
     }
 
     @FXML
@@ -234,8 +258,7 @@ public class RootLayoutController
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void createDocument(String fileName) throws FileNotFoundException,
             IOException {
-        viewModel.setProgress(0);
-        viewModel.setProgressText("Creating Manifest Exports...");
+        
         // Styles
         final String CART_STYLE = "MartinBrowersCartTotal";
         final String HEADER_STYLE = "MartinBrowersPageHeader";
@@ -252,17 +275,10 @@ public class RootLayoutController
 
         InputStream baseFileStream = new FileInputStream("manifest_base.docx");
         XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
-
-        int manifestCount = 0;
-        int totalManifestCount = palettes.size();
+        
         for (Palette palette : palettes) {
-            // Add 1 for header row
-            String message = String.format("Exporting page %s of %s...",
-                    ++manifestCount, totalManifestCount);
-            viewModel.setProgressText(message);
-            viewModel.setProgress(manifestCount / totalManifestCount);
+            // Add 1 for header row            
             int rowCount = palette.CASES.size() + 1;
-            List<Cases> allCases = palette.getSortedCaseList();
 
             // header
             XWPFParagraph headerParagraph = manifestDocument.createParagraph();
@@ -370,25 +386,18 @@ public class RootLayoutController
             closingParagraph.setPageBreak(true);
         } // for palette
 
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Saving manifest file...");
-
         FileOutputStream manifestFileStream = new FileOutputStream(fileName);
         manifestDocument.write(manifestFileStream);
         baseFileStream.close();
         manifestFileStream.close();
         manifestDocument.close();
-        viewModel.setProgress(0);
-        viewModel.setProgressText("Done Exporting...");
     }
 
     private void onBrowse() {
         // TODO: The notification currently used in the app is terrible.
         //       In subsequent releases, we will modify it to make use of
         //       Threads
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Clearing all states...");
-
+        
         // Clear everything
         palettes.clear();
         viewModel.setOriginalFilePath(null);
@@ -406,7 +415,6 @@ public class RootLayoutController
         viewModel.setNextButtonDisabled(Boolean.TRUE);
         viewModel.setPreviousButtonDisabled(Boolean.TRUE);
 
-        viewModel.setProgressText("Building Manifests, Please Wait...");
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
@@ -448,14 +456,6 @@ public class RootLayoutController
                 viewModel.setProgressText("There was an error. Code: MB001.");
                 ex.printStackTrace();
             }
-            finally {
-                viewModel.setProgress(0);
-                viewModel.setProgressText("");
-            }
-        }
-        else {
-            viewModel.setProgress(0);
-            viewModel.setProgressText("");
         }
     }
 
@@ -526,8 +526,8 @@ public class RootLayoutController
         if (exportButton.isDisabled()) {
             return;
         }
-
-        Date cureentDate = new Date();
+        
+        Date cureentDate = new Date();        
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
         String intialFileName = String.format("Manifest_%s",
                 dateFormat.format(cureentDate));
@@ -550,7 +550,7 @@ public class RootLayoutController
             return;
         }
 
-        try {
+        try {            
             createDocument(file.getPath());
         }
         catch (IOException ex) {
@@ -560,8 +560,6 @@ public class RootLayoutController
 
     public void onPrint() throws IOException, InterruptedException {
 
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Printing...");
         if (printButton.isDisabled()) {
             return;
         }
@@ -586,10 +584,7 @@ public class RootLayoutController
             }
             printerJob.endJob();
             // Notify user that this page has been sent to the printer 
-            viewModel.setProgress(0);
-            viewModel.setProgressText("Done Printing...");
-            Thread.sleep(1000);
-            viewModel.setProgressText("");
+
         }
     }
 
