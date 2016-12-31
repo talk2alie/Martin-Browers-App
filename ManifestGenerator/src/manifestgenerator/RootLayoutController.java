@@ -12,9 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,9 +63,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVerticalJc;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
 
 /**
  * FXML Controller class
@@ -132,12 +131,12 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
-    void onBrowseAction(ActionEvent event) throws InterruptedException {        
+    void onBrowseAction(ActionEvent event) throws InterruptedException {
         viewModel.setProgress(-1);
-        viewModel.setProgressText("Building Manifest Preview...");      
-        
-        onBrowse();        
-        
+        viewModel.setProgressText("Building Manifest Preview...");
+
+        onBrowse();
+
         viewModel.setProgress(0);
         viewModel.setProgressText("");
     }
@@ -146,9 +145,9 @@ public class RootLayoutController
     void onExportAction(ActionEvent event) throws InterruptedException {
         viewModel.setProgress(-1);
         viewModel.setProgressText("Exporting to Word...");
-        
+
         onExportToWord();
-        
+
         viewModel.setProgress(0);
         viewModel.setProgressText("Done Exporting...");
         Thread.sleep(1000);
@@ -160,9 +159,9 @@ public class RootLayoutController
 
         viewModel.setProgress(-1);
         viewModel.setProgressText("Printing...");
-        
+
         onPrint();
-        
+
         viewModel.setProgress(0);
         viewModel.setProgressText("Done Printing...");
         Thread.sleep(1000);
@@ -256,53 +255,36 @@ public class RootLayoutController
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Helpers">
-    private void createDocument(String fileName) throws FileNotFoundException,
+    private void createDocument(File file) throws FileNotFoundException,
             IOException {
-        
-        // Styles
-        final String CART_STYLE = "MartinBrowersCartTotal";
-        final String HEADER_STYLE = "MartinBrowersPageHeader";
-        final String SUB_HEADER_STYLE = "MartinBrowersPageSubHeader";
-        final String TABLE_STYLE = "MartinBrowersTable";
 
-        // Table Settings
+        InputStream baseFileStream = new FileInputStream("manifest_base.docx");
+        XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
+
         final int HEADER_ROW = 0;
         final int WRIN_COLUMN = 0;
         final int DESCRIPTION_COLUMN = 1;
         final int CASES_COLUMN = 2;
         final int STOP_COLUMN = 3;
         final int COLUMN_COUNT = 4;
+        final String COLUMN_WIDTH = "3333";
+        final String LARGE_COLUMN_WIDTH = "9999";
+        final int FONT_SIZE = 20;
 
-        InputStream baseFileStream = new FileInputStream("manifest_base.docx");
-        XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
-        
+        final String TABLE_STYLE = "MartinBrowersTable";
+
+        int processedPalettesCount = 0;
+        // Note that each palette can produce a single manifest page
         for (Palette palette : palettes) {
+            createHeader(manifestDocument, palette);
+            createsubHeader(manifestDocument, palette);
             // Add 1 for header row            
             int rowCount = palette.CASES.size() + 1;
-
-            // header
-            XWPFParagraph headerParagraph = manifestDocument.createParagraph();
-            headerParagraph.setStyle(HEADER_STYLE);
-            XWPFRun headerRun = headerParagraph.createRun();
-
-            headerRun.setText(String.format("Route: %s\t\t\t\tStop: %s",
-                    palette.getRouteInfo(), palette.getStopInfo()));
-
-            // Sub header
-            XWPFParagraph subHeaderParagraph = manifestDocument
-                    .createParagraph();
-            subHeaderParagraph.setStyle(SUB_HEADER_STYLE);
-            XWPFRun subHeaderRun = subHeaderParagraph.createRun();
-            subHeaderRun.setText(String.format("Trailer Position: %s",
-                    palette.TRAILER_POSITION));
-
-            XWPFTable casesTable = manifestDocument
-                    .createTable(rowCount, COLUMN_COUNT);
-            CTTblPr tableProperties = casesTable.getCTTbl()
-                    .getTblPr();
+            // Create cases table
+            XWPFTable casesTable = manifestDocument.createTable(rowCount, COLUMN_COUNT);
+            CTTblPr tableProperties = casesTable.getCTTbl().getTblPr();
             CTString styleStr = tableProperties.addNewTblStyle();
             styleStr.setVal(TABLE_STYLE);
-
             List<XWPFTableRow> rows = casesTable.getRows();
             int rowIndex = 0;
             int columnIndex = 0;
@@ -311,30 +293,29 @@ public class RootLayoutController
                 List<XWPFTableCell> cells = row.getTableCells();
                 // Add content to each cell
                 for (XWPFTableCell cell : cells) {
+                    cell.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+
                     // Get a table cell properties element (tcPr)
-                    CTTcPr cellProperties = cell.getCTTc()
-                            .addNewTcPr();
-                    // Set vertical alignment to "center"
-                    CTVerticalJc verticalAlignment = cellProperties
-                            .addNewVAlign();
-                    verticalAlignment.setVal(STVerticalJc.CENTER);
+                    CTTcPr cellProperties = cell.getCTTc().addNewTcPr();
+                    CTTblWidth cellWidth = cellProperties.addNewTcW();
+                    cellWidth.setW(new BigInteger(COLUMN_WIDTH));  // sets width
 
                     // Get 1st paragraph in cell's paragraph list
-                    XWPFParagraph cellParagraph = cell.getParagraphs()
-                            .get(0);
+                    XWPFParagraph cellParagraph = cell.getParagraphs().get(0);
                     // Create a run to contain the content
                     XWPFRun cellRun = cellParagraph.createRun();
+                    cellRun.setFontSize(FONT_SIZE);
+                    cellParagraph.setAlignment(ParagraphAlignment.CENTER);
                     // Set values
                     if (rowIndex == HEADER_ROW) {
                         cellRun.setBold(true);
-                        cellParagraph.setAlignment(ParagraphAlignment.CENTER);
-
                         if (columnIndex == WRIN_COLUMN) {
                             cellRun.setText("WRIN");
                         }
 
                         if (columnIndex == DESCRIPTION_COLUMN) {
                             cellRun.setText("DESCRIPTION");
+                            cellWidth.setW(new BigInteger(LARGE_COLUMN_WIDTH));
                         }
 
                         if (columnIndex == CASES_COLUMN) {
@@ -346,16 +327,14 @@ public class RootLayoutController
                         }
                     }
                     else {
-                        Cases cases = palette.getSortedCaseList()
-                                .get(rowIndex - 1);
-                        cellParagraph.setAlignment(ParagraphAlignment.LEFT);
-
+                        Cases cases = palette.getSortedCaseList().get(rowIndex - 1);
                         if (columnIndex == WRIN_COLUMN) {
                             cellRun.setText(cases.getContentId());
                         }
 
                         if (columnIndex == DESCRIPTION_COLUMN) {
                             cellRun.setText(cases.getContent());
+                            cellWidth.setW(new BigInteger(LARGE_COLUMN_WIDTH));
                         }
 
                         if (columnIndex == CASES_COLUMN) {
@@ -374,30 +353,75 @@ public class RootLayoutController
                 rowIndex++;
             } // for row
 
-            // Cart paragraph
-            XWPFParagraph cartParagraph = manifestDocument.createParagraph();
-            cartParagraph.setStyle(CART_STYLE);
-            XWPFRun cartRun = cartParagraph.createRun();
-            cartRun.setText(
-                    String.format("CART TOTAL: %s", palette.getCaseCount()));
+            // Create Cart Total
+            createFooter(manifestDocument, palette);
 
-            // Closing paragraph
-            XWPFParagraph closingParagraph = manifestDocument.createParagraph();
-            closingParagraph.setPageBreak(true);
-        } // for palette
+            // Create page break
+            processedPalettesCount++;
+            if (processedPalettesCount < palettes.size()) {
+                XWPFParagraph pageBreakParagraph = manifestDocument.createParagraph();
+                pageBreakParagraph.setPageBreak(Boolean.TRUE);
+            }
+        }
 
-        FileOutputStream manifestFileStream = new FileOutputStream(fileName);
+        FileOutputStream manifestFileStream = new FileOutputStream(file);
         manifestDocument.write(manifestFileStream);
         baseFileStream.close();
         manifestFileStream.close();
         manifestDocument.close();
     }
 
+    private void createFooter(XWPFDocument manifestDocument, Palette palette) {
+        final int FONT_SIZE = 20;
+
+        XWPFParagraph footer = manifestDocument.createParagraph();
+        footer.setAlignment(ParagraphAlignment.LEFT);
+        XWPFRun footerRun = footer.createRun();
+        footerRun.setBold(true);
+        footerRun.setFontFamily("Segoe UI");
+        footerRun.setFontSize(FONT_SIZE);
+        footerRun.setText(String.format("CART TOTAL: %s", palette.getCaseCount()));
+        footerRun.addBreak();
+        footerRun.addBreak();
+        footerRun.addBreak();
+        footerRun.addBreak();
+        footerRun.addBreak();
+        footerRun.addBreak();
+
+        createHeader(manifestDocument, palette);
+        createsubHeader(manifestDocument, palette);
+    }
+
+    private void createsubHeader(XWPFDocument manifestDocument, Palette palette) {
+        final int FONT_SIZE = 28;
+
+        XWPFParagraph subheader = manifestDocument.createParagraph();
+        subheader.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun subheaderRun = subheader.createRun();
+        subheaderRun.setFontFamily("Segoe UI Light");
+        subheaderRun.setFontSize(FONT_SIZE);
+        subheaderRun.setText(String.format("Trailer Position: %s", palette.TRAILER_POSITION));
+    }
+
+    private void createHeader(XWPFDocument manifestDocument, Palette palette) {
+        final int FONT_SIZE = 35;
+
+        XWPFParagraph header = manifestDocument.createParagraph();
+        header.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun headerRun = header.createRun();
+        headerRun.setFontFamily("Segoe UI Black");
+        headerRun.setFontSize(FONT_SIZE);
+        headerRun.setText(String.format("Route: %s", palette.getRouteInfo()));
+        headerRun.addTab();
+        headerRun.addTab();
+        headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
+    }
+
     private void onBrowse() {
         // TODO: The notification currently used in the app is terrible.
         //       In subsequent releases, we will modify it to make use of
         //       Threads
-        
+
         // Clear everything
         palettes.clear();
         viewModel.setOriginalFilePath(null);
@@ -526,8 +550,8 @@ public class RootLayoutController
         if (exportButton.isDisabled()) {
             return;
         }
-        
-        Date cureentDate = new Date();        
+
+        Date cureentDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
         String intialFileName = String.format("Manifest_%s",
                 dateFormat.format(cureentDate));
@@ -550,8 +574,8 @@ public class RootLayoutController
             return;
         }
 
-        try {            
-            createDocument(file.getPath());
+        try {
+            createDocument(file);
         }
         catch (IOException ex) {
             System.err.println(ex.getMessage());
