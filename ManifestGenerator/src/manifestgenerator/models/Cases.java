@@ -48,7 +48,7 @@ public class Cases implements Comparable<Cases>
 
     @Override
     public int compareTo(Cases other) {
-        return other.getQuantity() - getQuantity();
+        return getStop().compareTo(other.getStop());
     }
 
     /**

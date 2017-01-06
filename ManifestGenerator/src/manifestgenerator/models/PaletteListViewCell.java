@@ -86,14 +86,32 @@ public class PaletteListViewCell extends ListCell<Palette> {
                 palette.TRAILER_POSITION));
         
         casesTable.setItems(cases);
-        itemIdColumn.setCellValueFactory(
-                new PropertyValueFactory<>("contentId"));
-        itemDescriptionColumn.setCellValueFactory(
-                new PropertyValueFactory<>("content"));
-        casesColumn.setCellValueFactory(
-                new PropertyValueFactory<>("quantity")); 
-        stopColumn.setCellValueFactory(
-                new PropertyValueFactory<>("stop"));
+        casesTable.setEditable(false);
+        casesTable.setFocusTraversable(false);
+        casesTable.setId("casesTable");
+                
+        itemIdColumn.setCellValueFactory(new PropertyValueFactory<>("contentId"));        
+        itemIdColumn.setEditable(false);
+        itemIdColumn.setResizable(false);
+        itemIdColumn.setSortable(false);
+        itemIdColumn.setOnEditStart(event -> {
+            event.consume();
+        });
+        
+        itemDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("content"));
+        itemDescriptionColumn.setEditable(false);
+        itemDescriptionColumn.setResizable(false);
+        itemDescriptionColumn.setSortable(false);   
+        
+        casesColumn.setCellValueFactory(new PropertyValueFactory<>("quantity")); 
+        casesColumn.setEditable(false);
+        casesColumn.setResizable(false);
+        casesColumn.setSortable(false);
+        
+        stopColumn.setCellValueFactory(new PropertyValueFactory<>("stop"));
+        stopColumn.setEditable(false);
+        stopColumn.setResizable(false);
+        stopColumn.setSortable(false);
         
         cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount()); 
         

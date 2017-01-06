@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -66,6 +67,8 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         palettes = new ReadOnlyObjectWrapper<>(this, "palettes", FXCollections.observableArrayList());
         file = csvFile;
         temporaryFile = new File("temp.csv");
+        updateProgress(temporaryFile.length(), file.length());
+        updateMessage("Getting Started...");
         summaryHeadersOnCurrentPage = new HashMap<>();
         headersOnCurrentPage = new ArrayList<>();
         casesOnCurrentPage = new ArrayList<>();
@@ -91,10 +94,9 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         return matcher.find();
     }
 
-    private void updateSummaryHeadersOnCurrentPage(String line) {
+    private void updateSummaryHeadersOnCurrentPage(String line) {        
         Matcher matcher = SUMMARY_HEADER_PATTERN.matcher(line);
         while (matcher.find()) {
-            updateMessage(String.format("Processing Summary Headers on Page %d...", pageNumber + 1));
             String match = matcher.group();
             String header = match.substring(0, match.indexOf(":")).trim();
             String value = match.substring(match.lastIndexOf(",") + 1).trim();
@@ -107,7 +109,6 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         if (!matcher.matches()) {
             return;
         }
-        updateMessage(String.format("Processing Column Headers on Page %d...", pageNumber + 1));
         int column = 0;
         /*
          * I am using String.split() here because it provides
@@ -157,7 +158,6 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         if (!matcher.matches()) {
             return;
         }
-        updateMessage(String.format("Processing Cases on Page %d...", pageNumber + 1));
         // See getColumnHeaders for reasoning behind String.split()
         Queue<String> row = new LinkedList<>(Arrays.asList(matcher.group().split(",")));
         Cases cases = new Cases();
@@ -217,16 +217,14 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         return getProperlyStackedPalettes(palettes, newDifference);
     }
 
-    private HashMap<String, ArrayList<Cases>> separateCasesOnCurrentPageByStop() {
-        HashMap<String, ArrayList<Cases>> casesPerStop = new HashMap<>();
+    private HashMap<String, Cases> separateCasesOnCurrentPageByStop() {
+        HashMap<String, Cases> casesPerStop = new HashMap<>();
         for (Cases cases : casesOnCurrentPage) {
             if (casesPerStop.containsKey(cases.getStop())) {
-                casesPerStop.get(cases.getStop()).add(cases);
+                casesPerStop.get(cases.getStop()).increaseQuantityBy(cases.getQuantity());
                 continue;
             }
-            ArrayList<Cases> casesList = new ArrayList<>();
-            casesList.add(cases);
-            casesPerStop.put(cases.getStop(), casesList);
+            casesPerStop.put(cases.getStop(), cases);
         }
         return casesPerStop;
     }
@@ -242,79 +240,80 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         String trailerPosition = casesOnCurrentPage.get(0).getTrailerPosition();
         int theSumOfAllCasesOnCurrentPage = theSumOfAllCasesOnCurrentPage();
 
+        // All cases on this page are going to the same stop
+        // If the total number of cases on the page is <= 21,
+        // Simply create a single palette, add it to the page's
+        // palettes and return it
+        if (theSumOfAllCasesOnCurrentPage <= MAX_CASE_COUNT_PER_PALETTE) {
+            Palette palette = new Palette(trailerPosition);
+            palette.setReferencePage(pageNumber);
+            casesOnCurrentPage.forEach(cases -> palette.addCases(cases));
+            palettesOnCurrentPage.add(palette);
+            return palettesOnCurrentPage;
+        }
+
+        int midway = (theSumOfAllCasesOnCurrentPage % 2 == 0)
+                ? theSumOfAllCasesOnCurrentPage / 2
+                : (theSumOfAllCasesOnCurrentPage / 2) + 1;
+
         if (casesOnCurrentPageBelongToTheSameStop()) {
-            // All cases on this page are going to the same stop
-            // If the total number of cases on the page is <= 21,
-            // Simply create a single palette, add it to the page's
-            // palettes and return it
-            if (theSumOfAllCasesOnCurrentPage <= MAX_CASE_COUNT_PER_PALETTE) {
-                Palette palette = new Palette(trailerPosition);
-                palette.setReferencePage(pageNumber);
-                casesOnCurrentPage.forEach(cases -> palette.addCases(cases));
-                palettesOnCurrentPage.add(palette);
+            return getStackedPalettes(trailerPosition, pageNumber, midway, palettesOnCurrentPage);
+        }
+
+        return getPalettesOnCurrentPage(pageNumber, separateCasesOnCurrentPageByStop(), midway);
+    }
+
+    private ArrayList<Palette> getStackedPalettes(String trailerPosition, int pageNumber1, int midway, ArrayList<Palette> palettesOnCurrentPage) {
+        Palette firstPalette = new Palette(trailerPosition);
+        firstPalette.setReferencePage(pageNumber1);
+        Cases remainder = null;
+        while (firstPalette.getCaseCount() < midway) {
+            remainder = firstPalette.addCases(casesOnCurrentPage.remove(0));
+            if (remainder != null) {
+                break;
+            }
+        }
+        palettesOnCurrentPage.add(firstPalette);
+        if (casesOnCurrentPage.isEmpty()) {
+            if (remainder == null) {
                 return palettesOnCurrentPage;
             }
-
-            // Create 2 palettes from the list, stack them and return them            
-            int midway = 0;
-            if (theSumOfAllCasesOnCurrentPage % 2 == 0) {
-                // cart total is even
-                midway = theSumOfAllCasesOnCurrentPage / 2;
-            }
-            else {
-                // cart total is odd
-                midway = (theSumOfAllCasesOnCurrentPage / 2) + 1;
-            }
-            Palette firstPalette = new Palette(trailerPosition);
-            firstPalette.setReferencePage(pageNumber);
-            Cases remainder = null;
-            while (firstPalette.getCaseCount() < midway) {
-                remainder = firstPalette.addCases(casesOnCurrentPage.remove(0));
-                if (remainder != null) {
-                    break;
-                }
-            }
-            palettesOnCurrentPage.add(firstPalette);
-            if (casesOnCurrentPage.isEmpty()) {
-                if (remainder == null) {
-                    return palettesOnCurrentPage;
-                }
-                Palette secondPalette = new Palette(trailerPosition);
-                secondPalette.setReferencePage(pageNumber);
-                secondPalette.addCases(remainder);
-                palettesOnCurrentPage.add(secondPalette);
-                return getProperlyStackedPalettes(palettesOnCurrentPage,
-                        firstPalette.getCaseCount() - secondPalette.getCaseCount());
-            }
             Palette secondPalette = new Palette(trailerPosition);
-            secondPalette.setReferencePage(pageNumber);
-            if (remainder != null) {
-                secondPalette.addCases(remainder);
-            }
-            casesOnCurrentPage.forEach(cases -> secondPalette.addCases(cases));
+            secondPalette.setReferencePage(pageNumber1);
+            secondPalette.addCases(remainder);
             palettesOnCurrentPage.add(secondPalette);
             return getProperlyStackedPalettes(palettesOnCurrentPage,
                     firstPalette.getCaseCount() - secondPalette.getCaseCount());
         }
-
-        return getPalettesOnCurrentPage(pageNumber, separateCasesOnCurrentPageByStop());
+        Palette secondPalette = new Palette(trailerPosition);
+        secondPalette.setReferencePage(pageNumber1);
+        if (remainder != null) {
+            secondPalette.addCases(remainder);
+        }
+        casesOnCurrentPage.forEach(cases -> secondPalette.addCases(cases));
+        palettesOnCurrentPage.add(secondPalette);
+        return getProperlyStackedPalettes(palettesOnCurrentPage,
+                firstPalette.getCaseCount() - secondPalette.getCaseCount());
     }
 
-    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber, HashMap<String, ArrayList<Cases>> casesPerStop) {
+    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber, HashMap<String, Cases> casesPerStop, int midway) {
 
         if (casesPerStop.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // Create 2 palettes from all cases in the cases per stop list
-        return new ArrayList<>();
+        ArrayList<Palette> palettesOnCurrentPage = new ArrayList<>();
+        casesOnCurrentPage.clear();
+        casesOnCurrentPage.addAll(casesPerStop.values());
+        String trailerPosition = casesOnCurrentPage.get(0).getTrailerPosition();
+        return getStackedPalettes(trailerPosition, pageNumber, midway, palettesOnCurrentPage);
     }
 
     @Override
     protected ObservableList call() throws Exception {
         updateMessage("Opening File...");
         updateProgress(temporaryFile.length(), file.length());
-        FileReader fileReader = new FileReader(file);        
+        FileReader fileReader = new FileReader(file);
         BufferedReader reader = new BufferedReader(fileReader);
         FileWriter fileWriter = new FileWriter(temporaryFile);
         BufferedWriter writer = new BufferedWriter(fileWriter);
@@ -325,9 +324,9 @@ public class PaletteManager extends Task<ObservableList<Palette>>
             if (isEndOfCurrentPage(line)) {
                 pageNumber++;
                 writer.flush();
-                updateMessage(String.format("Processing Page %s of file...", pageNumber));
                 updateProgress(temporaryFile.length(), file.length());
-
+                updateMessage(String.format("Processing Page %s of file...", pageNumber));
+                Collections.sort(casesOnCurrentPage, (Cases first, Cases second) -> second.getQuantity() - first.getQuantity());
                 final ArrayList<Palette> palettesOnCurrentPage = getPalettesOnCurrentPage(pageNumber);
                 Collections.sort(palettesOnCurrentPage);
                 Platform.runLater(new Runnable()
@@ -353,9 +352,9 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         fileReader.close();
         reader.close();
         fileWriter.close();
-        writer.close();        
+        writer.close();
         updateMessage("Returning Manifests...");
-        updateProgress(temporaryFile.length(), file.length());        
+        updateProgress(temporaryFile.length(), file.length());
         return palettes.get();
     }
 
@@ -365,8 +364,8 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         // TODO: Add control for buttons and manifest list view selection index
         totalPages.set(pageNumber);
         totalManifestPages.set(getPalettes().size());
-        updateMessage("Done Generating Manifests...");
         updateProgress(file.length(), file.length());
+        updateMessage("Done Generating Manifests...");
         temporaryFile.deleteOnExit();
         working.set(false);
     }
@@ -381,6 +380,7 @@ public class PaletteManager extends Task<ObservableList<Palette>>
     protected void failed() {
         super.failed();
         // TODO: Log error and notify user
+        System.out.println(getException().getMessage());
         updateMessage("Something went wrong!");
     }
 
@@ -407,11 +407,11 @@ public class PaletteManager extends Task<ObservableList<Palette>>
     public final ReadOnlyIntegerProperty totalManifestPagesProperty() {
         return totalManifestPages.getReadOnlyProperty();
     }
-    
+
     public final boolean getWorking() {
         return working.get();
     }
-    
+
     public ReadOnlyBooleanProperty workingProperty() {
         return working.getReadOnlyProperty();
     }

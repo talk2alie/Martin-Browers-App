@@ -51,7 +51,7 @@ public class ManifestViewModel {
         totalPageCountInFile = new SimpleIntegerProperty();
         previousButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
         nextButtonDisabled = new SimpleBooleanProperty(Boolean.TRUE);
-        currentIndex = new SimpleIntegerProperty();
+        currentIndex = new SimpleIntegerProperty(0);
         progress = new SimpleDoubleProperty();
         progressText = new SimpleStringProperty();
     }

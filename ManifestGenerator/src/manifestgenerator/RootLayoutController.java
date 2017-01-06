@@ -5,6 +5,7 @@
  */
 package manifestgenerator;
 
+import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import java.beans.XMLDecoder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -94,12 +96,6 @@ public class RootLayoutController
     private Label progressLabel;
 
     @FXML
-    private Button previousButton;
-
-    @FXML
-    private Button nextButton;
-
-    @FXML
     private Label originalFileLabel;
 
     @FXML
@@ -132,7 +128,7 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
-    void onBrowseAction(ActionEvent event) throws InterruptedException {        
+    void onBrowseAction(ActionEvent event) throws InterruptedException {
         onBrowse();
     }
 
@@ -219,16 +215,6 @@ public class RootLayoutController
         alert.setHeaderText("About Manifest Generator");
         alert.setContentText(about);
         alert.showAndWait();
-    }
-
-    @FXML
-    void onPreviousScroll(ActionEvent event) {
-        scrollPrevious();
-    }
-
-    @FXML
-    void onNextScroll(ActionEvent event) {
-        scrollNext();
     }
 
     // </editor-fold>
@@ -395,7 +381,7 @@ public class RootLayoutController
         headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
     }
 
-    private void onBrowse() {        
+    private void onBrowse() {
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
@@ -412,18 +398,32 @@ public class RootLayoutController
             viewModel.setOriginalFileName(file.getName());
 
             PaletteManager paletteManager = new PaletteManager(file);
-            viewModel.progressTextProperty().bind(paletteManager.messageProperty());
+            StringBinding progressBinding = new StringBinding()
+            {
+                {
+                    super.bind(paletteManager.messageProperty());
+                    super.bind(paletteManager.progressProperty());
+                }
+
+                @Override
+                protected String computeValue() {
+                    return String.format("%s%s%%", paletteManager.messageProperty().get(),
+                            Math.round(paletteManager.progressProperty().multiply(100).get()));
+                }
+            };
+            viewModel.progressTextProperty().bind(progressBinding);
             viewModel.progressProperty().bind(paletteManager.progressProperty());
             manifestListView.itemsProperty().bind(paletteManager.palettesProperty());
             paletteManager.setOnSucceeded(event -> {
                 manifestListView.getSelectionModel().select(0);
             });
-            viewModel.totalPageCountInFileProperty().bind(paletteManager.totalPagesProperty());            
+            viewModel.totalPageCountInFileProperty().bind(paletteManager.totalPagesProperty());
             viewModel.totalPagesInManifestProperty().bind(paletteManager.totalManifestPagesProperty());
             viewModel.exportButtonDisabledProperty().bind(paletteManager.workingProperty());
             viewModel.printButtonDisabledProperty().bind(paletteManager.workingProperty());
+            viewModel.currentIndexProperty().bind(manifestListView.getSelectionModel().selectedIndexProperty());
             new Thread(paletteManager).start();
-            
+
             viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
     }
@@ -451,10 +451,22 @@ public class RootLayoutController
                         viewModel.setCurrentPageInManifest(
                                 manifestListView.getSelectionModel()
                                         .getSelectedIndex() + 1
-                        );                        
+                        );
                         viewModel.setReferencePage(newValue.getReferencePage());
                     }
                 });
+        manifestListView.getSelectionModel()
+                .selectedIndexProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    System.out.println(viewModel.getCurrentIndex());
+                });
+        manifestListView.setOnScrollTo(event -> {
+            System.out.println(event.getScrollTarget().intValue());
+        });     
+        manifestListView.setOnScroll(event -> {
+            System.out.println(event.getTotalDeltaX());
+            System.out.println(event.getDeltaX());
+        });
 
         originalFileLabel.textProperty()
                 .bind(Bindings.concat(
@@ -476,10 +488,6 @@ public class RootLayoutController
                 ));
 
         helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
-        previousButton.disableProperty()
-                .bind(viewModel.previousButtonDisabledProperty());
-        nextButton.disableProperty()
-                .bind(viewModel.nextButtonDisabledProperty());
         progressBar.progressProperty().bind(viewModel.progressProperty());
         progressLabel.textProperty().bind(viewModel.progressTextProperty());
     }
@@ -562,34 +570,6 @@ public class RootLayoutController
         alert.setHeaderText("You are being helped!");
         alert.setContentText("I am helping you now!!");
         alert.showAndWait();
-    }
-
-    public void scrollNext() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox").size() - 1;
-        viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
-        if (viewModel.getCurrentIndex() >= viewModel.getTotalPagesInManifest()) {
-            viewModel.setNextButtonDisabled(Boolean.TRUE);
-        }
-        else {
-            viewModel.setNextButtonDisabled(Boolean.FALSE);
-        }
-        manifestListView.scrollTo(viewModel.getCurrentIndex());
-        manifestListView.getSelectionModel().select(viewModel.getCurrentIndex());
-        viewModel.setPreviousButtonDisabled(Boolean.FALSE);
-    }
-
-    public void scrollPrevious() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox").size() - 1;
-        viewModel.setCurrentIndex(viewModel.getCurrentIndex() - pagesInView);
-        if (viewModel.getCurrentIndex() <= 0) {
-            viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-        }
-        else {
-            viewModel.setPreviousButtonDisabled(Boolean.FALSE);
-        }
-        manifestListView.scrollTo(viewModel.getCurrentIndex());
-        manifestListView.getSelectionModel().select(viewModel.getCurrentIndex());
-        viewModel.setNextButtonDisabled(Boolean.FALSE);
     }
 
     public RootLayoutController() {

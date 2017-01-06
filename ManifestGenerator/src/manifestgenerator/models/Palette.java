@@ -64,6 +64,7 @@ public class Palette implements Comparable<Palette>
         if (entry == null) { // This palette has no entry for these cases            
             if ((_caseCount + cases.getQuantity()) <= MAX_CASE_COUNT) {
                 cases.moveToPalette(ID);
+                cases.setTrailerPosition(TRAILER_POSITION);
                 CASES.add(cases);
                 _caseCount += cases.getQuantity();
                 return null;
@@ -72,6 +73,7 @@ public class Palette implements Comparable<Palette>
             Cases acceptableCases = new Cases(cases.getRoute(),
                     cases.getStop(), acceptableCasesCount, cases.getContent(),
                     cases.getContentId(), ID);
+            acceptableCases.setTrailerPosition(TRAILER_POSITION);
             CASES.add(acceptableCases);
             _caseCount += acceptableCasesCount;
             cases.decreaseQuantityBy(acceptableCasesCount);
@@ -96,7 +98,7 @@ public class Palette implements Comparable<Palette>
 
     @Override
     public int compareTo(Palette other) {
-        return this.getStopInfo().compareTo(other.getStopInfo());
+        return getStopInfo().compareTo(other.getStopInfo());
     }
 
     /**
