@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -131,41 +132,18 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
     @FXML
-    void onBrowseAction(ActionEvent event) throws InterruptedException {
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Building Manifest Preview...");
-
+    void onBrowseAction(ActionEvent event) throws InterruptedException {        
         onBrowse();
-
-        viewModel.setProgress(0);
-        viewModel.setProgressText("");
     }
 
     @FXML
     void onExportAction(ActionEvent event) throws InterruptedException {
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Exporting to Word...");
-
         onExportToWord();
-
-        viewModel.setProgress(0);
-        viewModel.setProgressText("Done Exporting...");
-        Thread.sleep(1000);
-        viewModel.setProgressText("");
     }
 
     @FXML
     void onPrintAction(ActionEvent event) throws IOException, InterruptedException {
-
-        viewModel.setProgress(-1);
-        viewModel.setProgressText("Printing...");
-
         onPrint();
-
-        viewModel.setProgress(0);
-        viewModel.setProgressText("Done Printing...");
-        Thread.sleep(1000);
-        viewModel.setProgressText("");
     }
 
     @FXML
@@ -417,38 +395,15 @@ public class RootLayoutController
         headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
     }
 
-    private void onBrowse() {
-        // TODO: The notification currently used in the app is terrible.
-        //       In subsequent releases, we will modify it to make use of
-        //       Threads
-
-        // Clear everything
-        palettes.clear();
-        viewModel.setOriginalFilePath(null);
-        viewModel.setOriginalFileName("N/A");
-        manifestListView.getSelectionModel()
-                .clearSelection();
-        viewModel.setTotalPageCountInFile(0);
-        viewModel.setPrintButtonDisabled(Boolean.TRUE);
-        viewModel.setExportButtonDisabled(Boolean.TRUE);
-        viewModel.setReferencePage(0);
-        viewModel.setTotalPageCountInFile(0);
-        viewModel.setCurrentPageInManifest(0);
-        viewModel.setTotalPagesInManifest(0);
-        viewModel.setCurrentIndex(0);
-        viewModel.setNextButtonDisabled(Boolean.TRUE);
-        viewModel.setPreviousButtonDisabled(Boolean.TRUE);
-
+    private void onBrowse() {        
         // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
-        fileChooser.getExtensionFilters()
-                .clear();
+        fileChooser.getExtensionFilters().clear();
         fileChooser.getExtensionFilters()
                 .add(new ExtensionFilter("Comma Separated Values", "*.csv"));
         if (preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory
-                    = new File(preferencesViewModel.getDefaultInputDirectory());
+            File inputDirectory = new File(preferencesViewModel.getDefaultInputDirectory());
             fileChooser.setInitialDirectory(inputDirectory);
         }
         File file = fileChooser.showOpenDialog(mainStage);
@@ -456,30 +411,20 @@ public class RootLayoutController
             viewModel.setOriginalFilePath(file.getPath());
             viewModel.setOriginalFileName(file.getName());
 
-            try {
-                PaletteManager paletteManager
-                        = new PaletteManager(viewModel.getOriginalFilePath());
-                palettes.addAll(paletteManager.PALETTES);
-                if (palettes.size() > 0) {
-                    manifestListView.getSelectionModel()
-                            .select(0);
-                    viewModel.setTotalPageCountInFile(
-                            paletteManager.getTotlaPageCount());
-                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
-                    viewModel.setExportButtonDisabled(Boolean.FALSE);
-                    viewModel.setPrintButtonDisabled(Boolean.FALSE);
-                    if (palettes.size() > manifestListView
-                            .lookupAll("#manifestVBox")
-                            .size()) {
-                        viewModel.setNextButtonDisabled(Boolean.FALSE);
-                    }
-                }
-            }
-            catch (IOException ex) {
-                // Error Code MB001 - Manifest Building 001
-                viewModel.setProgressText("There was an error. Code: MB001.");
-                ex.printStackTrace();
-            }
+            PaletteManager paletteManager = new PaletteManager(file);
+            viewModel.progressTextProperty().bind(paletteManager.messageProperty());
+            viewModel.progressProperty().bind(paletteManager.progressProperty());
+            manifestListView.itemsProperty().bind(paletteManager.palettesProperty());
+            paletteManager.setOnSucceeded(event -> {
+                manifestListView.getSelectionModel().select(0);
+            });
+            viewModel.totalPageCountInFileProperty().bind(paletteManager.totalPagesProperty());            
+            viewModel.totalPagesInManifestProperty().bind(paletteManager.totalManifestPagesProperty());
+            viewModel.exportButtonDisabledProperty().bind(paletteManager.workingProperty());
+            viewModel.printButtonDisabledProperty().bind(paletteManager.workingProperty());
+            new Thread(paletteManager).start();
+            
+            viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
     }
 
@@ -498,7 +443,6 @@ public class RootLayoutController
         exportButton.disableProperty()
                 .bind(viewModel.exportButtonDisabledProperty());
 
-        manifestListView.setItems(palettes);
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
         manifestListView.getSelectionModel()
                 .selectedItemProperty()
@@ -507,8 +451,7 @@ public class RootLayoutController
                         viewModel.setCurrentPageInManifest(
                                 manifestListView.getSelectionModel()
                                         .getSelectedIndex() + 1
-                        );
-                        viewModel.setTotalPagesInManifest(palettes.size());
+                        );                        
                         viewModel.setReferencePage(newValue.getReferencePage());
                     }
                 });
@@ -622,22 +565,21 @@ public class RootLayoutController
     }
 
     public void scrollNext() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox")
-                .size();
+        int pagesInView = manifestListView.lookupAll("#manifestVBox").size() - 1;
         viewModel.setCurrentIndex(pagesInView + viewModel.getCurrentIndex());
-        if (viewModel.getCurrentIndex() >= palettes.size()) {
+        if (viewModel.getCurrentIndex() >= viewModel.getTotalPagesInManifest()) {
             viewModel.setNextButtonDisabled(Boolean.TRUE);
         }
         else {
             viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
+        manifestListView.getSelectionModel().select(viewModel.getCurrentIndex());
         viewModel.setPreviousButtonDisabled(Boolean.FALSE);
     }
 
     public void scrollPrevious() {
-        int pagesInView = manifestListView.lookupAll("#manifestVBox")
-                .size();
+        int pagesInView = manifestListView.lookupAll("#manifestVBox").size() - 1;
         viewModel.setCurrentIndex(viewModel.getCurrentIndex() - pagesInView);
         if (viewModel.getCurrentIndex() <= 0) {
             viewModel.setPreviousButtonDisabled(Boolean.TRUE);
@@ -646,6 +588,7 @@ public class RootLayoutController
             viewModel.setPreviousButtonDisabled(Boolean.FALSE);
         }
         manifestListView.scrollTo(viewModel.getCurrentIndex());
+        manifestListView.getSelectionModel().select(viewModel.getCurrentIndex());
         viewModel.setNextButtonDisabled(Boolean.FALSE);
     }
 
