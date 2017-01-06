@@ -16,6 +16,7 @@ public class Cases implements Comparable<Cases>
     private String _content; // The description
     private String _contentId; // The WRIN
     private String _paletteId;
+    private String _trailerPosition;
 
     /**
      * Creates a new instance using the given information
@@ -47,7 +48,7 @@ public class Cases implements Comparable<Cases>
 
     @Override
     public int compareTo(Cases other) {
-        return getId().compareTo(other.getId());
+        return other.getQuantity() - getQuantity();
     }
 
     /**
@@ -146,5 +147,19 @@ public class Cases implements Comparable<Cases>
      */
     public void moveToPalette(String paletteId) {
         _paletteId = paletteId;
+    }
+
+    /**
+     * @return the _trailerPosition
+     */
+    public String getTrailerPosition() {
+        return _trailerPosition;
+    }
+
+    /**
+     * @param _trailerPosition the _trailerPosition to set
+     */
+    public void setTrailerPosition(String _trailerPosition) {
+        this._trailerPosition = _trailerPosition;
     }
 }

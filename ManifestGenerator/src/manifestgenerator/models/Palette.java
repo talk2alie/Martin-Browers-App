@@ -5,14 +5,16 @@
 package manifestgenerator.models;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Represents a palette that can hold up to 21 cases of buns
  */
-public class Palette
+public class Palette implements Comparable<Palette>
 {
 
     /**
@@ -92,6 +94,11 @@ public class Palette
         return cases;
     }
 
+    @Override
+    public int compareTo(Palette other) {
+        return this.getStopInfo().compareTo(other.getStopInfo());
+    }
+
     /**
      * Removes count of the given cases from this palette
      *
@@ -164,9 +171,9 @@ public class Palette
     }
 
     /**
-     * Gets the total number of cases in this palette
-     *
-     * @return the number of cases in this palette
+     * Gets the sum of all cases in this palette
+     * 
+     * @return the total quantity of cases in this palette
      */
     public int getCaseCount() {
         return _caseCount;
@@ -181,7 +188,6 @@ public class Palette
         if (CASES.isEmpty()) {
             return null;
         }
-
         return CASES.get(CASES.size() - 1).getId();
     }
 
@@ -238,6 +244,20 @@ public class Palette
         return CASES.get(0).getRoute();
     }
     
+    public HashMap<String, ArrayList<Cases>> getSeparatedCases() {
+        HashMap<String, ArrayList<Cases>> casesPerStop = new HashMap<>();
+        for (Cases cases : getSortedCaseList()) {
+            if (casesPerStop.containsKey(cases.getStop())) {
+                casesPerStop.get(cases.getStop()).add(cases);
+                continue;
+            }
+            ArrayList<Cases> casesList = new ArrayList<>();
+            casesList.add(cases);
+            casesPerStop.put(cases.getStop(), casesList);
+        }        
+        return casesPerStop;
+    }
+    
     /**
      * Gets information about the stop for each type of case in this palette.
      * If cases in this palette do not all belong to the same stop, all the 
@@ -246,15 +266,37 @@ public class Palette
      * @return The stop for cases in this palette if there is a single stop;
      * otherwise, a "/" separated list of all stops
      */
-    public String getStopInfo() {
-        String current = getSortedCaseList().get(0).getStop();
-        String uniqueStops = current;
-        for(int i = 1; i < getSortedCaseList().size(); ++i) {
-            if(!getSortedCaseList().get(i).getStop().equals(current)) {
-                current = getSortedCaseList().get(i).getStop();
-                uniqueStops += "/" + current;
-            }
-        } 
+    public String getStopInfo() { 
+        String stop = CASES.get(0).getStop();
+        if(CASES.stream().allMatch(cases -> cases.getStop().equals(stop))){
+            return stop;
+        }
+        
+        ArrayList<String> keys = new ArrayList<>(getSeparatedCases().keySet());        
+        Collections.sort(keys);
+        String uniqueStops = Arrays.toString(keys.toArray());
+        if(uniqueStops.contains("[")) {
+            uniqueStops = uniqueStops.replace("[", "");
+        }
+        
+        if(uniqueStops.contains("]")) {
+            uniqueStops = uniqueStops.replace("]", "");
+        }
+        
+        if(uniqueStops.contains(",")) {
+            uniqueStops = uniqueStops.replace(",", "/");
+        }
         return uniqueStops;
+    }
+    
+    /**
+     * Gets the sum of the quantity of each type of case in this palette
+     */
+    public int getManifestCartTotal() {
+        return CASES.stream().mapToInt(cases -> cases.getQuantity()).sum();
+    }
+    
+    public boolean isFull() {
+        return _caseCount == MAX_CASE_COUNT;
     }
 }

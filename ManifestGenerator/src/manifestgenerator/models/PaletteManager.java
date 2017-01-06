@@ -4,8 +4,10 @@
  */
 package manifestgenerator.models;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,115 +18,96 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 
 /**
  * @author Mohamed Alie Pussah (mp754927@wcupa.edu)
  * Encapsulates actions for efficiently parsing a CSV file
  * to extract predefined palette data
  */
-public class PaletteManager
+public class PaletteManager extends Task<ObservableList<Palette>>
 {
-    // <editor-fold defaultstate="collapsed" desc="Fields">
 
-    /**
-     * The pages contained in the parsed CSV file
-     */
-    public final ArrayList<Page> PAGES;
-    public final ArrayList<Palette> PALETTES;
-    private final Queue<Cases> _cases;
-    private ArrayList<Palette> _palettes;
-    private int _totlaPageCount;
+    private final ReadOnlyObjectWrapper<ObservableList<Palette>> palettes;
+    private final ReadOnlyIntegerWrapper totalPages;
+    private final ReadOnlyIntegerWrapper totalManifestPages;
+    private final ReadOnlyBooleanWrapper working;
+    private final File file;
+    private final File temporaryFile;
+    private final HashMap<String, String> summaryHeadersOnCurrentPage;
+    private final ArrayList<Column> headersOnCurrentPage;
+    private final ArrayList<Cases> casesOnCurrentPage;
+    private int pageNumber;
+    private int rowCount;
 
-    private final String _wantedColumns;
-    private int _rowCount;
-    private final ArrayList<Column> _columns;
-    private final BufferedReader _reader;
-    private final Map<String, String> _summaryHeaders;
-    private final int _maxPalettesPerPage = 2;
+    private final Pattern SUMMARY_HEADER_PATTERN;
+    private final Pattern COLUMN_HEADER_PATTERN;
+    private final Pattern DATA_ROW_PATTERN;
+    private final Pattern PAGE_NUMBER_PATTERN;
+    private final String WANTED_COLUMNS;
 
-    private Pattern SUMMARY_HEADER_PATTERN;
-    private Pattern COLUMN_HEADER_PATTERN;
-    private Pattern DATA_ROW_PATTERN;
-    private Pattern PAGE_NUMBER_PATTERN;
+    public PaletteManager(File csvFile) {
+        palettes = new ReadOnlyObjectWrapper<>(this, "palettes", FXCollections.observableArrayList());
+        file = csvFile;
+        temporaryFile = new File("temp.csv");
+        summaryHeadersOnCurrentPage = new HashMap<>();
+        headersOnCurrentPage = new ArrayList<>();
+        casesOnCurrentPage = new ArrayList<>();
+        totalPages = new ReadOnlyIntegerWrapper(0);
+        totalManifestPages = new ReadOnlyIntegerWrapper();
+        working = new ReadOnlyBooleanWrapper(true);
 
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Methods">
-    // <editor-fold defaultstate="collapsed" desc="Constructors">
-    /**
-     * Creates a new reader with the given information
-     *
-     * @param fileName The full path of the CSV file
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public PaletteManager(String fileName)
-            throws FileNotFoundException, IOException {
-        FileReader reader = new FileReader(fileName);
-        _reader = new BufferedReader(reader);
-        PAGES = new ArrayList<>();
-        PALETTES = new ArrayList<>();
-        _columns = new ArrayList<>();
-        _summaryHeaders = new HashMap<>();
-        _cases = new LinkedList<>();
-        _palettes = new ArrayList<>(_maxPalettesPerPage);
-
-        // In the future, this value could be dynamic
-        _wantedColumns
-                = "ROUTE,WRIN,TRAILER POSITION,STOP,CASES,DESCRIPTION,TRAILER POS";
-
-        initializePatterns();
-        processFile(_reader);
-        _reader.close();
-    }
-
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Helpers">
-    private void initializePatterns() {
         SUMMARY_HEADER_PATTERN = Pattern.compile("\\b(ROUTE|WRIN|TRAILER\\s*(POSITION|POS)|STOP|CASES|DESCRIPTION)\\s*:{1}\\s*\\,+\\w+\\b");
         COLUMN_HEADER_PATTERN = Pattern.compile("^,+(ROUTE|WRIN|TRAILER\\s*(POSITION|POS)|STOP|CASES|DESCRIPTION)+\\,+.*$");
         DATA_ROW_PATTERN = Pattern.compile("^,*(\\b(?:\\d*\\.)?\\d+\\b\\,+)+\\b(\\w+(\\s|[\\/\\-\\_])?)+\\b\\s*\\,+(\\b(?:\\d*\\.)?\\d+\\b\\,+)\\b\\w+\\b\\,+.*\\b(\\b(?:\\d*\\.)?\\d+\\b)\\,*$");
         PAGE_NUMBER_PATTERN = Pattern.compile("^\\bPage\\s\\d+\\b(?=\\s*of\\,+\\d+\\,+.*$)");
+
+        WANTED_COLUMNS = "ROUTE,WRIN,TRAILER POSITION,STOP,CASES,DESCRIPTION,TRAILER POS";
     }
 
-    private ArrayList<Column> getColumns() {
-        Collections.sort(_columns);
-        return _columns;
+    private ArrayList<Column> getHeadersOnCurrentPage() {
+        Collections.sort(headersOnCurrentPage);
+        return headersOnCurrentPage;
     }
 
-    private Map<String, String> getSummaryHeader(String line) {
+    private boolean isEndOfCurrentPage(String line) {
+        Matcher matcher = PAGE_NUMBER_PATTERN.matcher(line);
+        return matcher.find();
+    }
+
+    private void updateSummaryHeadersOnCurrentPage(String line) {
         Matcher matcher = SUMMARY_HEADER_PATTERN.matcher(line);
-        Map<String, String> summaryHeaders = new HashMap<>();
         while (matcher.find()) {
+            updateMessage(String.format("Processing Summary Headers on Page %d...", pageNumber + 1));
             String match = matcher.group();
             String header = match.substring(0, match.indexOf(":")).trim();
             String value = match.substring(match.lastIndexOf(",") + 1).trim();
-            summaryHeaders.put(header, value);
+            summaryHeadersOnCurrentPage.put(header, value);
         }
-        return summaryHeaders;
     }
 
-    private String getPageNumber(String line) {
-        Matcher matcher = PAGE_NUMBER_PATTERN.matcher(line);
-        if (matcher.find()) {
-            String match = matcher.group();
-            String pageNumber = match.substring(match.indexOf(" ") + 1);
-            return pageNumber.trim();
-        }
-        return null;
-    }
-
-    private boolean updateColumnHeaders(String line) {
+    private void updateHeadersOnCurrentPage(String line) {
         Matcher matcher = COLUMN_HEADER_PATTERN.matcher(line);
         if (!matcher.matches()) {
-            return false;
+            return;
         }
-
+        updateMessage(String.format("Processing Column Headers on Page %d...", pageNumber + 1));
         int column = 0;
         /*
          * I am using String.split() here because it provides
@@ -132,59 +115,20 @@ public class PaletteManager
          * /* you will want to use the group() method from the
          * /* matcher
          */
-        Queue<String> row
-                = new LinkedList<>(Arrays.asList(matcher.group().split(",")));
+        Queue<String> row = new LinkedList<>(Arrays.asList(matcher.group().split(",")));
         while (!row.isEmpty()) {
             String data = row.poll().trim();
             column++;
-            if (data == null || "".equals(data)
-                    || !_wantedColumns.contains(data)) {
+            if (data == null || "".equals(data) || !WANTED_COLUMNS.contains(data)) {
                 continue;
             }
 
-            Cell header = new Cell(_rowCount, column, data);
-            _columns.add(new Column(header));
+            Cell header = new Cell(rowCount, column, data);
+            headersOnCurrentPage.add(new Column(header));
         }
-        return true;
     }
 
-    private void updateColumns(String line) {
-        Matcher matcher = DATA_ROW_PATTERN.matcher(line);
-        if (!matcher.matches()) {
-            return;
-        }
-        // See getColumnHeaders for reasoning behind String.split()
-        Queue<String> row
-                = new LinkedList<>(Arrays.asList(matcher.group().split(",")));
-        Cases cases = new Cases();
-        int dataColumn = 0;
-        for (Column column : getColumns()) {
-            while (!row.isEmpty()) {
-                String data = row.poll().trim();
-                dataColumn++;
-                if (data == null || "".equals(data)) {
-                    continue;
-                }
-
-                if (Math.abs(dataColumn - column.HEADER.COLUMN) > 1) {
-                    continue;
-                }
-                column.CELLS.add(new Cell(_rowCount,
-                        column.HEADER.COLUMN, data));
-                processCases(column, cases, data);
-                break;
-            }
-        }
-
-        if (cases.getRoute().equals("")) {
-            String route = _summaryHeaders.get("ROUTE");
-            cases.setRoute(route);
-        }
-        _cases.add(cases);
-    }
-
-    private void processCases(Column column, Cases cases, String data)
-            throws NumberFormatException {
+    private void processCases(Column column, Cases cases, String data) throws NumberFormatException {
         switch (column.HEADER.VALUE.toLowerCase()) {
             case "route":
                 cases.setRoute(data);
@@ -204,196 +148,271 @@ public class PaletteManager
             case "trailer":
             case "trailer pos":
             case "trailer position":
-                if (_palettes.size() < _maxPalettesPerPage) {
-                    _palettes.add(new Palette(data));
-                }
+                cases.setTrailerPosition(data);
         }
     }
 
-    private void buildPalettes(Page currentPage) {
-        // Ensure that there are at least two palettes per page
-        while (_palettes.size() < _maxPalettesPerPage) {
-            _palettes.add(new Palette(
-                    _palettes.get(0).TRAILER_POSITION));
+    private void updateCasesOnCurrentPage(String line) {
+        Matcher matcher = DATA_ROW_PATTERN.matcher(line);
+        if (!matcher.matches()) {
+            return;
         }
-
-        Cases remainder = null;
-        for (Palette palette : _palettes) {
-            if (remainder != null) {
-                // Add the remaining cases to the next palette
-                palette.addCases(remainder);
-            }
-
-            while (!_cases.isEmpty()) {
-                Cases cases = _cases.poll();
-                remainder = palette.addCases(cases);
-                if (remainder != null) {
-                    break;
+        updateMessage(String.format("Processing Cases on Page %d...", pageNumber + 1));
+        // See getColumnHeaders for reasoning behind String.split()
+        Queue<String> row = new LinkedList<>(Arrays.asList(matcher.group().split(",")));
+        Cases cases = new Cases();
+        int dataColumn = 0;
+        for (Column column : getHeadersOnCurrentPage()) {
+            while (!row.isEmpty()) {
+                String data = row.poll().trim();
+                dataColumn++;
+                if (data == null || "".equals(data)) {
+                    continue;
                 }
-            }
 
-            if (palette.CASES.size() > 0) {
-                palette.setReferencePage(currentPage.NUMBER);
+                if (Math.abs(dataColumn - column.HEADER.COLUMN) > 1) {
+                    continue;
+                }
+                processCases(column, cases, data);
+                break;
             }
         }
 
-        for (int i = 0; i < _maxPalettesPerPage; ++i) {
-            if (_palettes.get(i).CASES.isEmpty()) {
-                _palettes.remove(i);
-            }
+        if (cases.getRoute().equals("")) {
+            String route = summaryHeadersOnCurrentPage.get("ROUTE");
+            cases.setRoute(route);
         }
+        casesOnCurrentPage.add(cases);
     }
 
-    private ArrayList<Palette> stackCases(ArrayList<Palette> palettes,
-            int difference) {
+    private boolean casesOnCurrentPageBelongToTheSameStop() {
+        String stop = casesOnCurrentPage.get(0).getStop();
+        return casesOnCurrentPage.stream().allMatch(cases -> cases.getStop().equals(stop));
+    }
+
+    private int theSumOfAllCasesOnCurrentPage() {
+        return casesOnCurrentPage.stream().mapToInt(cases -> cases.getQuantity()).sum();
+    }
+
+    private ArrayList<Palette> getProperlyStackedPalettes(ArrayList<Palette> palettes, int difference) {
+        final int FIRST = 0;
+        final int SECOND = 1;
+        final int CASES_TO_REMOVE = 1;
 
         if (difference == 0 || difference == 1) {
             return palettes;
         }
 
-        if ((difference < 6 && difference > 1) 
-                && palettes.get(0).getCaseCount() == 1) {
+        if ((difference < 6 && difference > 1) && palettes.get(FIRST).CASES.size() == 1) {
             return palettes;
         }
 
-        String lastCaseId = palettes.get(0).getLastCaseId();
-        Cases cases = palettes.get(0).removeCases(lastCaseId, 1);
-        palettes.get(1).addCases(cases);
+        String lastCaseId = palettes.get(FIRST).getLastCaseId();
+        Cases cases = palettes.get(FIRST).removeCases(lastCaseId, CASES_TO_REMOVE);
+        palettes.get(SECOND).addCases(cases);
 
-        int newDifference = palettes.get(0).getCaseCount()
-                - palettes.get(1).getCaseCount();
+        int newDifference = palettes.get(FIRST).getCaseCount()
+                - palettes.get(SECOND).getCaseCount();
 
-        return stackCases(palettes, newDifference);
+        return getProperlyStackedPalettes(palettes, newDifference);
     }
 
-    private void processFile(BufferedReader reader) throws IOException {
+    private HashMap<String, ArrayList<Cases>> separateCasesOnCurrentPageByStop() {
+        HashMap<String, ArrayList<Cases>> casesPerStop = new HashMap<>();
+        for (Cases cases : casesOnCurrentPage) {
+            if (casesPerStop.containsKey(cases.getStop())) {
+                casesPerStop.get(cases.getStop()).add(cases);
+                continue;
+            }
+            ArrayList<Cases> casesList = new ArrayList<>();
+            casesList.add(cases);
+            casesPerStop.put(cases.getStop(), casesList);
+        }
+        return casesPerStop;
+    }
+
+    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber) {
+        if (casesOnCurrentPage.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        final int MAX_PALETTES_PER_PAGE = 2;
+        final int MAX_CASE_COUNT_PER_PALETTE = 21;
+        ArrayList<Palette> palettesOnCurrentPage = new ArrayList<>(MAX_PALETTES_PER_PAGE);
+        String trailerPosition = casesOnCurrentPage.get(0).getTrailerPosition();
+        int theSumOfAllCasesOnCurrentPage = theSumOfAllCasesOnCurrentPage();
+
+        if (casesOnCurrentPageBelongToTheSameStop()) {
+            // All cases on this page are going to the same stop
+            // If the total number of cases on the page is <= 21,
+            // Simply create a single palette, add it to the page's
+            // palettes and return it
+            if (theSumOfAllCasesOnCurrentPage <= MAX_CASE_COUNT_PER_PALETTE) {
+                Palette palette = new Palette(trailerPosition);
+                palette.setReferencePage(pageNumber);
+                casesOnCurrentPage.forEach(cases -> palette.addCases(cases));
+                palettesOnCurrentPage.add(palette);
+                return palettesOnCurrentPage;
+            }
+
+            // Create 2 palettes from the list, stack them and return them            
+            int midway = 0;
+            if (theSumOfAllCasesOnCurrentPage % 2 == 0) {
+                // cart total is even
+                midway = theSumOfAllCasesOnCurrentPage / 2;
+            }
+            else {
+                // cart total is odd
+                midway = (theSumOfAllCasesOnCurrentPage / 2) + 1;
+            }
+            Palette firstPalette = new Palette(trailerPosition);
+            firstPalette.setReferencePage(pageNumber);
+            Cases remainder = null;
+            while (firstPalette.getCaseCount() < midway) {
+                remainder = firstPalette.addCases(casesOnCurrentPage.remove(0));
+                if (remainder != null) {
+                    break;
+                }
+            }
+            palettesOnCurrentPage.add(firstPalette);
+            if (casesOnCurrentPage.isEmpty()) {
+                if (remainder == null) {
+                    return palettesOnCurrentPage;
+                }
+                Palette secondPalette = new Palette(trailerPosition);
+                secondPalette.setReferencePage(pageNumber);
+                secondPalette.addCases(remainder);
+                palettesOnCurrentPage.add(secondPalette);
+                return getProperlyStackedPalettes(palettesOnCurrentPage,
+                        firstPalette.getCaseCount() - secondPalette.getCaseCount());
+            }
+            Palette secondPalette = new Palette(trailerPosition);
+            secondPalette.setReferencePage(pageNumber);
+            if (remainder != null) {
+                secondPalette.addCases(remainder);
+            }
+            casesOnCurrentPage.forEach(cases -> secondPalette.addCases(cases));
+            palettesOnCurrentPage.add(secondPalette);
+            return getProperlyStackedPalettes(palettesOnCurrentPage,
+                    firstPalette.getCaseCount() - secondPalette.getCaseCount());
+        }
+
+        return getPalettesOnCurrentPage(pageNumber, separateCasesOnCurrentPageByStop());
+    }
+
+    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber, HashMap<String, ArrayList<Cases>> casesPerStop) {
+
+        if (casesPerStop.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Create 2 palettes from all cases in the cases per stop list
+        return new ArrayList<>();
+    }
+
+    @Override
+    protected ObservableList call() throws Exception {
+        updateMessage("Opening File...");
+        updateProgress(temporaryFile.length(), file.length());
+        FileReader fileReader = new FileReader(file);        
+        BufferedReader reader = new BufferedReader(fileReader);
+        FileWriter fileWriter = new FileWriter(temporaryFile);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
         String line;
-        while ((line = _reader.readLine()) != null) {
-            _rowCount++;
-            String pageNumber = getPageNumber(line);
-            if (pageNumber != null && pageNumber.length() > 0) {
-                // Set up current page
-                Page currentPage = new Page(Integer.parseInt(pageNumber));
-                _totlaPageCount++;
-                currentPage.SUMMARIES.putAll(_summaryHeaders);
-                currentPage.COLUMNS.addAll(getColumns());
-                PAGES.add(currentPage);
+        while ((line = reader.readLine()) != null) {
+            writer.write(line);
+            rowCount++;
+            if (isEndOfCurrentPage(line)) {
+                pageNumber++;
+                writer.flush();
+                updateMessage(String.format("Processing Page %s of file...", pageNumber));
+                updateProgress(temporaryFile.length(), file.length());
 
-                // clear all variables for the current page
-                _summaryHeaders.clear();
-                _columns.clear();
-                buildPalettes(currentPage);
-                if (_palettes.size() == 1) {
-                    PALETTES.add(_palettes.get(0));
-                }
-                else {
-                    int difference = _palettes.get(0).getCaseCount()
-                            - _palettes.get(1).getCaseCount();
-                    _palettes = stackCases(_palettes, difference);
-                    for (Palette palette : _palettes) {
-                        PALETTES.add(palette);
+                final ArrayList<Palette> palettesOnCurrentPage = getPalettesOnCurrentPage(pageNumber);
+                Collections.sort(palettesOnCurrentPage);
+                Platform.runLater(new Runnable()
+                {
+                    @Override
+                    public void run() {
+                        if (!palettesOnCurrentPage.isEmpty()) {
+                            palettes.get().addAll(palettesOnCurrentPage);
+                        }
                     }
-                }
-
-                _palettes.clear();
+                });
+                summaryHeadersOnCurrentPage.clear();
+                headersOnCurrentPage.clear();
+                casesOnCurrentPage.clear();
                 continue;
             }
 
-            Map<String, String> currentSummaryHeaders = getSummaryHeader(line);
-            if (currentSummaryHeaders.size() > 0) {
-                _summaryHeaders.putAll(currentSummaryHeaders);
-                continue;
-            }
-
-            if (updateColumnHeaders(line)) {
-                continue;
-            }
-
-            updateColumns(line);
+            updateSummaryHeadersOnCurrentPage(line);
+            updateHeadersOnCurrentPage(line);
+            updateCasesOnCurrentPage(line);
         }
+
+        fileReader.close();
+        reader.close();
+        fileWriter.close();
+        writer.close();        
+        updateMessage("Returning Manifests...");
+        updateProgress(temporaryFile.length(), file.length());        
+        return palettes.get();
     }
 
-    // </editor-fold>
-    // Purely for testing output
-    public void saveAsCsv(String fileName) throws IOException {
-        if (PAGES.isEmpty()) {
-            return;
-        }
-
-        if (fileName == null || fileName.length() == 0) {
-            throw new NullPointerException("The test file name is not set");
-        }
-
-        FileWriter fileWriter = new FileWriter(fileName);
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-
-        StringBuilder pageBuilder;
-        for (Page page : PAGES) {
-            pageBuilder = new StringBuilder();
-            Iterator iterator = page.SUMMARIES.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, String> pair = (Map.Entry) iterator.next();
-                pageBuilder.append(String.format("%s:,%s,,",
-                        pair.getKey(), pair.getValue()));
-            }
-            pageBuilder.append("\n\r");
-
-            ArrayList<Column> columns = page.COLUMNS;
-
-            // Builder header row            
-            StringBuilder rowBuilder = new StringBuilder();
-            for (Column column : columns) {
-                rowBuilder.append(String.format(",%s", column.HEADER.VALUE));
-            }
-            rowBuilder.append("\n");
-
-            // Build data rows
-            int cellIndex = 0;
-            int cellCount = columns.get(0).CELLS.size();
-            while (cellIndex < cellCount) {
-                for (Column column : columns) {
-                    rowBuilder.append(String.format(",%s",
-                            column.CELLS.get(cellIndex).VALUE));
-                }
-                rowBuilder.append("\n");
-                cellIndex++;
-            }
-            pageBuilder.append(rowBuilder.toString());
-
-            // Build page row
-            pageBuilder.append(String.format("\nPage %s of %s",
-                    page.NUMBER, PAGES.size()));
-
-            // Write page to file
-            writer.write(String.format("%s\n\r", pageBuilder.toString()));
-        }
-
-        writer.close();
+    @Override
+    protected void succeeded() {
+        super.succeeded();
+        // TODO: Add control for buttons and manifest list view selection index
+        totalPages.set(pageNumber);
+        totalManifestPages.set(getPalettes().size());
+        updateMessage("Done Generating Manifests...");
+        updateProgress(file.length(), file.length());
+        temporaryFile.deleteOnExit();
+        working.set(false);
     }
 
-    public void saveAllPalettesAsCsv(String fileName) throws IOException {
-        if (PALETTES.isEmpty()) {
-            return;
-        }
+    @Override
+    protected void cancelled() {
+        super.cancelled();
+        updateMessage("Cancelled!");
+    }
 
-        if (fileName == null || fileName.length() == 0) {
-            throw new NullPointerException("The test file name is not set");
-        }
-        
-        FileWriter fileWriter = new FileWriter(fileName);
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-        
-        for(Palette palette : PALETTES) {
-            writer.write(palette.getManifestAsCsv());
-            writer.write("\n");
-        }
-        
-        writer.close();
+    @Override
+    protected void failed() {
+        super.failed();
+        // TODO: Log error and notify user
+        updateMessage("Something went wrong!");
+    }
+
+    public final ObservableList getPalettes() {
+        return palettes.get();
+    }
+
+    public final ReadOnlyObjectProperty palettesProperty() {
+        return palettes.getReadOnlyProperty();
+    }
+
+    public final int getTotalPages() {
+        return totalPages.get();
+    }
+
+    public final ReadOnlyIntegerProperty totalPagesProperty() {
+        return totalPages.getReadOnlyProperty();
+    }
+
+    public final int getTotalManifestPages() {
+        return totalManifestPages.get();
+    }
+
+    public final ReadOnlyIntegerProperty totalManifestPagesProperty() {
+        return totalManifestPages.getReadOnlyProperty();
     }
     
-    public int getTotlaPageCount() {
-        return _totlaPageCount;
+    public final boolean getWorking() {
+        return working.get();
     }
     
-    // </editor-fold>
+    public ReadOnlyBooleanProperty workingProperty() {
+        return working.getReadOnlyProperty();
+    }
 }
