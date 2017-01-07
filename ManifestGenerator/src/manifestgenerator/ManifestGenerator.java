@@ -6,8 +6,6 @@
 package manifestgenerator;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -58,7 +56,7 @@ public class ManifestGenerator extends Application
                     // TODO: Log error and report it
                 }
             }
-        });
+        });        
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.isControlDown() && event.getCode() == KeyCode.W) {
                 rootController.onExportToWord();

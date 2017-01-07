@@ -412,7 +412,7 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         return working.get();
     }
 
-    public ReadOnlyBooleanProperty workingProperty() {
+    public final ReadOnlyBooleanProperty workingProperty() {
         return working.getReadOnlyProperty();
     }
 }

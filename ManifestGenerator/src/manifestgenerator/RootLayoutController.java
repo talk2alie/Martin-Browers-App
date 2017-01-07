@@ -5,7 +5,6 @@
  */
 package manifestgenerator;
 
-import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 import java.beans.XMLDecoder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,8 +21,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -51,6 +50,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import manifestgenerator.models.Cases;
+import manifestgenerator.models.ManifestPrinter;
 import manifestgenerator.models.PrintView;
 import manifestgenerator.models.ManifestViewModel;
 import manifestgenerator.models.Palette;
@@ -85,6 +85,7 @@ public class RootLayoutController
     private PreferencesViewModel preferencesViewModel;
     private final String PREFERENCES = "preferences.xml";
     private PreferencesController preferencesController;
+    private boolean isBusy;
 
     @FXML
     private TextField browseTextField;
@@ -382,7 +383,6 @@ public class RootLayoutController
     }
 
     private void onBrowse() {
-        // Process new file
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
         fileChooser.getExtensionFilters().clear();
@@ -416,6 +416,8 @@ public class RootLayoutController
             manifestListView.itemsProperty().bind(paletteManager.palettesProperty());
             paletteManager.setOnSucceeded(event -> {
                 manifestListView.getSelectionModel().select(0);
+                palettes.addAll(paletteManager.getPalettes());
+
             });
             viewModel.totalPageCountInFileProperty().bind(paletteManager.totalPagesProperty());
             viewModel.totalPagesInManifestProperty().bind(paletteManager.totalManifestPagesProperty());
@@ -455,18 +457,6 @@ public class RootLayoutController
                         viewModel.setReferencePage(newValue.getReferencePage());
                     }
                 });
-        manifestListView.getSelectionModel()
-                .selectedIndexProperty()
-                .addListener((observable, oldValue, newValue) -> {
-                    System.out.println(viewModel.getCurrentIndex());
-                });
-        manifestListView.setOnScrollTo(event -> {
-            System.out.println(event.getScrollTarget().intValue());
-        });     
-        manifestListView.setOnScroll(event -> {
-            System.out.println(event.getTotalDeltaX());
-            System.out.println(event.getDeltaX());
-        });
 
         originalFileLabel.textProperty()
                 .bind(Bindings.concat(
@@ -539,28 +529,30 @@ public class RootLayoutController
             return;
         }
 
-        Printer defaultPrinter = Printer.getDefaultPrinter();
-        PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
-                PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
-        double printableWidth = layout.getPrintableWidth();
-        double printableHeight = layout.getPrintableHeight();
-        PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
-        if (printerJob != null && printerJob.showPrintDialog(mainStage)) {
-            ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
-            for (VBox vBox : pages) {
-                vBox.setPrefSize(printableWidth, printableHeight);
-                boolean printIsSuccessful = printerJob.printPage(vBox);
-                if (!printIsSuccessful) {
-                    // Bind the jobStatusProperty to some UI control
-                    // Notify user of a possible error
-                    printerJob.cancelJob();
-                    return;
-                }
-            }
-            printerJob.endJob();
-            // Notify user that this page has been sent to the printer 
+        progressBar.progressProperty().unbind();
+        progressLabel.textProperty().unbind();
+        printButton.disableProperty().unbind();
+        exportButton.disableProperty().unbind();
 
-        }
+        ManifestPrinter printer = new ManifestPrinter(palettes, mainStage);
+        StringBinding progressBinding = new StringBinding()
+        {
+            {
+                super.bind(printer.messageProperty());
+                super.bind(printer.progressProperty());
+            }
+
+            @Override
+            protected String computeValue() {
+                return String.format("%s%s%%", printer.messageProperty().get(),
+                        Math.round(printer.progressProperty().multiply(100).get()));
+            }
+        };
+        progressBar.progressProperty().bind(printer.progressProperty());
+        progressLabel.textProperty().bind(progressBinding);
+        printButton.disableProperty().bind(printer.workingProperty());
+        exportButton.disableProperty().bind(printer.workingProperty());
+        new Thread(printer).run();
     }
 
     public void onHelpMenuAction() {

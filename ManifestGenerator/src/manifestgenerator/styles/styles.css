@@ -118,7 +118,7 @@ and open the template in the editor.
   -fx-background: -fx-control-inner-background-alt ;
 }
 
-.table-row-cell:empty {
+/*.table-row-cell:empty {
     -fx-background-color: transparent;
     -fx-table-cell-border-color: transparent;
     -fx-table-cell-border-width: 0;
@@ -126,11 +126,7 @@ and open the template in the editor.
  
 .table-row-cell:empty .table-cell {
     -fx-border-width: 0;
-}
-
-#casesTable {
-    
-}
+}*/
 
 #routeLabel, #stopLabel {
     -fx-font: 1.5em "Segoe UI";
