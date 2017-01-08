@@ -51,6 +51,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import manifestgenerator.models.Cases;
 import manifestgenerator.models.ManifestPrinter;
+import manifestgenerator.models.ManifestExporter;
 import manifestgenerator.models.PrintView;
 import manifestgenerator.models.ManifestViewModel;
 import manifestgenerator.models.Palette;
@@ -125,6 +126,12 @@ public class RootLayoutController
 
     @FXML
     private MenuItem helpMenuItem;
+
+    @FXML
+    private MenuItem printMenuItem;
+
+    @FXML
+    private MenuItem exportMenuItem;
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Action Handlers">
@@ -220,169 +227,10 @@ public class RootLayoutController
 
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Helpers">
-    private void createDocument(File file) throws FileNotFoundException,
-            IOException {
-
-        InputStream baseFileStream = new FileInputStream("manifest_base.docx");
-        XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
-
-        final int HEADER_ROW = 0;
-        final int WRIN_COLUMN = 0;
-        final int DESCRIPTION_COLUMN = 1;
-        final int CASES_COLUMN = 2;
-        final int STOP_COLUMN = 3;
-        final int COLUMN_COUNT = 4;
-        final String COLUMN_WIDTH = "3333";
-        final String LARGE_COLUMN_WIDTH = "9999";
-        final int FONT_SIZE = 20;
-
-        final String TABLE_STYLE = "MartinBrowersTable";
-
-        int processedPalettesCount = 0;
-        // Note that each palette can produce a single manifest page
-        for (Palette palette : palettes) {
-            createHeader(manifestDocument, palette);
-            createsubHeader(manifestDocument, palette);
-            // Add 1 for header row            
-            int rowCount = palette.CASES.size() + 1;
-            // Create cases table
-            XWPFTable casesTable = manifestDocument.createTable(rowCount, COLUMN_COUNT);
-            CTTblPr tableProperties = casesTable.getCTTbl().getTblPr();
-            CTString styleStr = tableProperties.addNewTblStyle();
-            styleStr.setVal(TABLE_STYLE);
-            List<XWPFTableRow> rows = casesTable.getRows();
-            int rowIndex = 0;
-            int columnIndex = 0;
-            for (XWPFTableRow row : rows) {
-                // Get the cells in this row
-                List<XWPFTableCell> cells = row.getTableCells();
-                // Add content to each cell
-                for (XWPFTableCell cell : cells) {
-                    cell.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
-
-                    // Get a table cell properties element (tcPr)
-                    CTTcPr cellProperties = cell.getCTTc().addNewTcPr();
-                    CTTblWidth cellWidth = cellProperties.addNewTcW();
-                    cellWidth.setW(new BigInteger(COLUMN_WIDTH));  // sets width
-
-                    // Get 1st paragraph in cell's paragraph list
-                    XWPFParagraph cellParagraph = cell.getParagraphs().get(0);
-                    // Create a run to contain the content
-                    XWPFRun cellRun = cellParagraph.createRun();
-                    cellRun.setFontSize(FONT_SIZE);
-                    cellParagraph.setAlignment(ParagraphAlignment.CENTER);
-                    // Set values
-                    if (rowIndex == HEADER_ROW) {
-                        cellRun.setBold(true);
-                        if (columnIndex == WRIN_COLUMN) {
-                            cellRun.setText("WRIN");
-                        }
-
-                        if (columnIndex == DESCRIPTION_COLUMN) {
-                            cellRun.setText("DESCRIPTION");
-                            cellWidth.setW(new BigInteger(LARGE_COLUMN_WIDTH));
-                        }
-
-                        if (columnIndex == CASES_COLUMN) {
-                            cellRun.setText("CASES");
-                        }
-
-                        if (columnIndex == STOP_COLUMN) {
-                            cellRun.setText("STOP");
-                        }
-                    }
-                    else {
-                        Cases cases = palette.getSortedCaseList().get(rowIndex - 1);
-                        if (columnIndex == WRIN_COLUMN) {
-                            cellRun.setText(cases.getContentId());
-                        }
-
-                        if (columnIndex == DESCRIPTION_COLUMN) {
-                            cellRun.setText(cases.getContent());
-                            cellWidth.setW(new BigInteger(LARGE_COLUMN_WIDTH));
-                        }
-
-                        if (columnIndex == CASES_COLUMN) {
-                            cellRun.setText(
-                                    String.format("%s", cases.getQuantity()));
-                        }
-
-                        if (columnIndex == STOP_COLUMN) {
-                            cellRun.setText(
-                                    String.format("%s", cases.getStop()));
-                        }
-                    }
-                    columnIndex++;
-                } // for cell
-                columnIndex = 0;
-                rowIndex++;
-            } // for row
-
-            // Create Cart Total
-            createFooter(manifestDocument, palette);
-
-            // Create page break
-            processedPalettesCount++;
-            if (processedPalettesCount < palettes.size()) {
-                XWPFParagraph pageBreakParagraph = manifestDocument.createParagraph();
-                pageBreakParagraph.setPageBreak(Boolean.TRUE);
-            }
-        }
-
-        FileOutputStream manifestFileStream = new FileOutputStream(file);
-        manifestDocument.write(manifestFileStream);
-        baseFileStream.close();
-        manifestFileStream.close();
-        manifestDocument.close();
-    }
-
-    private void createFooter(XWPFDocument manifestDocument, Palette palette) {
-        final int FONT_SIZE = 20;
-
-        XWPFParagraph footer = manifestDocument.createParagraph();
-        footer.setAlignment(ParagraphAlignment.LEFT);
-        XWPFRun footerRun = footer.createRun();
-        footerRun.setBold(true);
-        footerRun.setFontFamily("Segoe UI");
-        footerRun.setFontSize(FONT_SIZE);
-        footerRun.setText(String.format("CART TOTAL: %s", palette.getCaseCount()));
-        footerRun.addBreak();
-        footerRun.addBreak();
-        footerRun.addBreak();
-        footerRun.addBreak();
-        footerRun.addBreak();
-        footerRun.addBreak();
-
-        createHeader(manifestDocument, palette);
-        createsubHeader(manifestDocument, palette);
-    }
-
-    private void createsubHeader(XWPFDocument manifestDocument, Palette palette) {
-        final int FONT_SIZE = 28;
-
-        XWPFParagraph subheader = manifestDocument.createParagraph();
-        subheader.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun subheaderRun = subheader.createRun();
-        subheaderRun.setFontFamily("Segoe UI Light");
-        subheaderRun.setFontSize(FONT_SIZE);
-        subheaderRun.setText(String.format("Trailer Position: %s", palette.TRAILER_POSITION));
-    }
-
-    private void createHeader(XWPFDocument manifestDocument, Palette palette) {
-        final int FONT_SIZE = 35;
-
-        XWPFParagraph header = manifestDocument.createParagraph();
-        header.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun headerRun = header.createRun();
-        headerRun.setFontFamily("Segoe UI Black");
-        headerRun.setFontSize(FONT_SIZE);
-        headerRun.setText(String.format("Route: %s", palette.getRouteInfo()));
-        headerRun.addTab();
-        headerRun.addTab();
-        headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
-    }
-
     private void onBrowse() {
+        progressBar.progressProperty().unbind();
+        progressLabel.textProperty().unbind();
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
         fileChooser.getExtensionFilters().clear();
@@ -411,8 +259,8 @@ public class RootLayoutController
                             Math.round(paletteManager.progressProperty().multiply(100).get()));
                 }
             };
-            viewModel.progressTextProperty().bind(progressBinding);
-            viewModel.progressProperty().bind(paletteManager.progressProperty());
+            progressLabel.textProperty().bind(progressBinding);
+            progressBar.progressProperty().bind(paletteManager.progressProperty());
             manifestListView.itemsProperty().bind(paletteManager.palettesProperty());
             paletteManager.setOnSucceeded(event -> {
                 manifestListView.getSelectionModel().select(0);
@@ -438,16 +286,12 @@ public class RootLayoutController
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        browseTextField.textProperty()
-                .bind(viewModel.originalFilePathProperty());
-        printButton.disableProperty()
-                .bind(viewModel.printButtonDisabledProperty());
-        exportButton.disableProperty()
-                .bind(viewModel.exportButtonDisabledProperty());
+        browseTextField.textProperty().bind(viewModel.originalFilePathProperty());
+        printButton.disableProperty().bind(viewModel.printButtonDisabledProperty());
+        exportButton.disableProperty().bind(viewModel.exportButtonDisabledProperty());
 
         manifestListView.setCellFactory(listView -> new PaletteListViewCell());
-        manifestListView.getSelectionModel()
-                .selectedItemProperty()
+        manifestListView.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
                         viewModel.setCurrentPageInManifest(
@@ -480,6 +324,8 @@ public class RootLayoutController
         helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
         progressBar.progressProperty().bind(viewModel.progressProperty());
         progressLabel.textProperty().bind(viewModel.progressTextProperty());
+        printMenuItem.disableProperty().bind(printButton.disableProperty());
+        exportMenuItem.disableProperty().bind(exportButton.disableProperty());
     }
 
     public void setMainStage(Stage stage) {
@@ -492,35 +338,34 @@ public class RootLayoutController
             return;
         }
 
-        Date cureentDate = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
-        String intialFileName = String.format("Manifest_%s",
-                dateFormat.format(cureentDate));
+        progressBar.progressProperty().unbind();
+        progressLabel.textProperty().unbind();
+        printButton.disableProperty().unbind();
+        exportButton.disableProperty().unbind();
 
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export Manifests to MS Word");
-        fileChooser.getExtensionFilters()
-                .clear();
-        fileChooser.getExtensionFilters()
-                .add(
-                        new ExtensionFilter("Microsoft Word", "*.docx"));
-        if (preferencesViewModel.getDefaultInputDirectory() != null) {
-            File inputDirectory
-                    = new File(preferencesViewModel.getDefaultInputDirectory());
-            fileChooser.setInitialDirectory(inputDirectory);
-        }
-        fileChooser.setInitialFileName(intialFileName);
-        File file = fileChooser.showSaveDialog(mainStage);
-        if (file == null) {
-            return;
-        }
+        ManifestExporter exporter = new ManifestExporter(palettes,
+                mainStage, preferencesViewModel.getDefaultOutputDirectory());
+        StringBinding progressBinding = new StringBinding()
+        {
+            {
+                super.bind(exporter.messageProperty());
+                super.bind(exporter.progressProperty());
+            }
 
-        try {
-            createDocument(file);
-        }
-        catch (IOException ex) {
-            System.err.println(ex.getMessage());
-        }
+            @Override
+            protected String computeValue() {
+                if (exporter.getProgress() < 0) {
+                    return exporter.messageProperty().get();
+                }
+                return String.format("%s%s%%", exporter.messageProperty().get(),
+                        Math.round(exporter.progressProperty().multiply(100).get()));
+            }
+        };
+        progressBar.progressProperty().bind(exporter.progressProperty());
+        progressLabel.textProperty().bind(progressBinding);
+        exportButton.disableProperty().bind(exporter.workingProperty());
+        printButton.disableProperty().bind(exporter.workingProperty());
+        new Thread(exporter).run();
     }
 
     public void onPrint() throws IOException, InterruptedException {
@@ -544,6 +389,10 @@ public class RootLayoutController
 
             @Override
             protected String computeValue() {
+                if(printer.getProgress() < 0) {
+                    return printer.messageProperty().get();
+                }
+                
                 return String.format("%s%s%%", printer.messageProperty().get(),
                         Math.round(printer.progressProperty().multiply(100).get()));
             }

@@ -6,8 +6,6 @@ package manifestgenerator.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -25,7 +23,6 @@ import javafx.stage.Stage;
  */
 public class ManifestPrinter extends Task<Void>
 {
-
     private final List<Palette> palettes;
     private final Stage mainStage;
     private int currentPage;
@@ -53,7 +50,7 @@ public class ManifestPrinter extends Task<Void>
     protected Void call() throws Exception {
         updateMessage("Getting Things Ready for Printing...");
         ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
-        updateProgress(currentPage, totalPageCount);
+        updateProgress(-1, totalPageCount);
 
         Platform.runLater(() -> {
             Printer defaultPrinter = Printer.getDefaultPrinter();
@@ -87,7 +84,6 @@ public class ManifestPrinter extends Task<Void>
                 working.set(false);
             }
         });
-
         return null;
     }
         
