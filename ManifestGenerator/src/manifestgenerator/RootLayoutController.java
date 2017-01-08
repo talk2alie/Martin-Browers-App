@@ -116,6 +116,9 @@ public class RootLayoutController
     private ListView<Palette> manifestListView;
 
     @FXML
+    private Button browseButton;
+    
+    @FXML
     private MenuItem browseMenuItem;
 
     @FXML
@@ -228,6 +231,11 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void onBrowse() {
+        
+        if(browseButton.isDisabled()) {
+            return;
+        }
+        
         progressBar.progressProperty().unbind();
         progressLabel.textProperty().unbind();
 
@@ -326,6 +334,7 @@ public class RootLayoutController
         progressLabel.textProperty().bind(viewModel.progressTextProperty());
         printMenuItem.disableProperty().bind(printButton.disableProperty());
         exportMenuItem.disableProperty().bind(exportButton.disableProperty());
+        browseMenuItem.disableProperty().bind(browseButton.disableProperty());
     }
 
     public void setMainStage(Stage stage) {
@@ -342,6 +351,7 @@ public class RootLayoutController
         progressLabel.textProperty().unbind();
         printButton.disableProperty().unbind();
         exportButton.disableProperty().unbind();
+        browseButton.disableProperty().unbind();
 
         ManifestExporter exporter = new ManifestExporter(palettes,
                 mainStage, preferencesViewModel.getDefaultOutputDirectory());
@@ -365,6 +375,7 @@ public class RootLayoutController
         progressLabel.textProperty().bind(progressBinding);
         exportButton.disableProperty().bind(exporter.workingProperty());
         printButton.disableProperty().bind(exporter.workingProperty());
+        browseButton.disableProperty().bind(exporter.workingProperty());
         new Thread(exporter).run();
     }
 
@@ -378,6 +389,7 @@ public class RootLayoutController
         progressLabel.textProperty().unbind();
         printButton.disableProperty().unbind();
         exportButton.disableProperty().unbind();
+        browseButton.disableProperty().unbind();
 
         ManifestPrinter printer = new ManifestPrinter(palettes, mainStage);
         StringBinding progressBinding = new StringBinding()
@@ -401,6 +413,7 @@ public class RootLayoutController
         progressLabel.textProperty().bind(progressBinding);
         printButton.disableProperty().bind(printer.workingProperty());
         exportButton.disableProperty().bind(printer.workingProperty());
+        browseButton.disableProperty().bind(printer.workingProperty());
         new Thread(printer).run();
     }
 
@@ -408,8 +421,8 @@ public class RootLayoutController
         // Create a custom Web view for showing help files
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Help");
-        alert.setHeaderText("You are being helped!");
-        alert.setContentText("I am helping you now!!");
+        alert.setHeaderText("Comping Soon");
+        alert.setContentText("A Help menu will be included in the next release.");
         alert.showAndWait();
     }
 

@@ -270,9 +270,7 @@ public class ManifestExporter extends Task<Void>
                     ex.printStackTrace();
                 }
             }
-
         });
-
         return null;
     }
 
