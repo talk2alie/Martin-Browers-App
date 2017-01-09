@@ -4,26 +4,17 @@
  */
 package manifestgenerator.models;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.application.Platform;
@@ -217,15 +208,17 @@ public class PaletteManager extends Task<ObservableList<Palette>>
         return getProperlyStackedPalettes(palettes, newDifference);
     }
 
-    private HashMap<String, Cases> separateCasesOnCurrentPageByStop() {
-        HashMap<String, Cases> casesPerStop = new HashMap<>();
+    private HashMap<String, ArrayList<Cases>> separateCasesOnCurrentPageByStop() {
+        HashMap<String, ArrayList<Cases>> casesPerStop = new HashMap<>();
         for (Cases cases : casesOnCurrentPage) {
             if (casesPerStop.containsKey(cases.getStop())) {
-                casesPerStop.get(cases.getStop()).increaseQuantityBy(cases.getQuantity());
+                casesPerStop.get(cases.getStop()).add(cases);
                 continue;
             }
-            casesPerStop.put(cases.getStop(), cases);
-        }
+            ArrayList<Cases> casesList = new ArrayList<>();
+            casesList.add(cases);
+            casesPerStop.put(cases.getStop(), casesList);
+        }        
         return casesPerStop;
     }
 
@@ -296,7 +289,7 @@ public class PaletteManager extends Task<ObservableList<Palette>>
                 firstPalette.getCaseCount() - secondPalette.getCaseCount());
     }
 
-    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber, HashMap<String, Cases> casesPerStop, int midway) {
+    private ArrayList<Palette> getPalettesOnCurrentPage(int pageNumber, HashMap<String, ArrayList<Cases>> casesPerStop, int midway) {
 
         if (casesPerStop.isEmpty()) {
             return new ArrayList<>();
@@ -304,7 +297,11 @@ public class PaletteManager extends Task<ObservableList<Palette>>
 
         ArrayList<Palette> palettesOnCurrentPage = new ArrayList<>();
         casesOnCurrentPage.clear();
-        casesOnCurrentPage.addAll(casesPerStop.values());
+        for(String stop : casesPerStop.keySet()){
+            if(casesPerStop.get(stop).size() > 0) {
+                casesOnCurrentPage.addAll(casesPerStop.get(stop));
+            }
+        }
         String trailerPosition = casesOnCurrentPage.get(0).getTrailerPosition();
         return getStackedPalettes(trailerPosition, pageNumber, midway, palettesOnCurrentPage);
     }

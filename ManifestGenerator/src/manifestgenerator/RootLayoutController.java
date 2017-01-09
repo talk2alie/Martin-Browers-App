@@ -272,6 +272,7 @@ public class RootLayoutController
             manifestListView.itemsProperty().bind(paletteManager.palettesProperty());
             paletteManager.setOnSucceeded(event -> {
                 manifestListView.getSelectionModel().select(0);
+                palettes.clear();
                 palettes.addAll(paletteManager.getPalettes());
 
             });
