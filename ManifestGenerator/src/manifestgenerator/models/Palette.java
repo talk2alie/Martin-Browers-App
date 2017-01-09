@@ -288,7 +288,7 @@ public class Palette implements Comparable<Palette>
         if(uniqueStops.contains(",")) {
             uniqueStops = uniqueStops.replace(",", "/");
         }
-        return uniqueStops;
+        return uniqueStops.replace(" ", "");
     }
     
     /**
