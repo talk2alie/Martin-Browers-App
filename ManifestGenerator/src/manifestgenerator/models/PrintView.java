@@ -42,7 +42,6 @@ public class PrintView
             catch (IOException ex) {
                 // Log error                
             }
-
         });
         return views;
     }

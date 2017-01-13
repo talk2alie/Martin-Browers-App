@@ -6,12 +6,17 @@ package manifestgenerator.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
+import javafx.print.PageRange;
 import javafx.print.Paper;
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
@@ -30,7 +35,6 @@ public class ManifestPrinter extends Task<Void>
     private final ReadOnlyBooleanWrapper working;
 
     public ManifestPrinter(List<Palette> palettes, Stage stage) {
-
         if (palettes == null || palettes.isEmpty()) {
             throw new NullPointerException("The palettes to print cannot be null or empty");
         }
@@ -51,36 +55,53 @@ public class ManifestPrinter extends Task<Void>
         updateMessage("Getting Things Ready for Printing...");
         ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
         updateProgress(-1, totalPageCount);
-
         Platform.runLater(() -> {
             Printer defaultPrinter = Printer.getDefaultPrinter();
             PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                     PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
             double printableWidth = layout.getPrintableWidth();
             double printableHeight = layout.getPrintableHeight();
-            PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);
-            if (printerJob != null && printerJob.showPrintDialog(mainStage)) {
-                for (VBox vBox : pages) {
+            PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);            
+            if (printerJob == null) {
+                try {
+                    throw new Exception("There was a problem.");
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                    updateMessage("PrinterJob was null.");
+                    return;
+                }
+            }
+                        
+            printerJob.getJobSettings().setPageRanges(new PageRange(1, totalPageCount));
+            if(printerJob.showPrintDialog(mainStage)) {
+                int endPage = printerJob.getJobSettings().getPageRanges()[0].getEndPage();                
+                while (currentPage < endPage) {
+                    if(pages.size() <= 0) {
+                        updateMessage("We could not generate pages for printing.");
+                        printerJob.cancelJob();
+                        return;
+                    }
+                    VBox vBox = pages.get(currentPage);
+                    printerJob.getJobSettings().setPageRanges(new PageRange(1, totalPageCount));
                     currentPage++;
-                    updateMessage(String.format("Printing Page %s of %s...",
-                            currentPage, totalPageCount));
+                    updateMessage(String.format("Printing Page %s of %s...", currentPage, endPage));
+                    updateProgress(currentPage, endPage);
                     vBox.setPrefSize(printableWidth, printableHeight);
+                    vBox.setMaxSize(printableWidth, printableHeight);
                     boolean printIsSuccessful = printerJob.printPage(vBox);
                     if (!printIsSuccessful) {
                         updateMessage("Something Went Wrong; Please Check Printer...");
                         printerJob.cancelJob();
                         return;
-                    }
-                    updateProgress(currentPage, totalPageCount);
-                    updateMessage(String.format("Sent Page %s of %s to Printer...",
-                            currentPage, totalPageCount));
+                    }         
                 }
                 printerJob.endJob();
                 updateMessage("All Manifests Sent to Printer...");
                 working.set(false);
             } else {
-                updateMessage("Print was Cancelled or Something Went Wrong...");
-                updateProgress(currentPage, totalPageCount);
+                updateMessage("Print was Cancelled...");
+                updateProgress(0, 0);
                 working.set(false);
             }
         });

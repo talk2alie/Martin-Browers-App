@@ -58,6 +58,15 @@ public class ManifestPageViewController implements Initializable
 
     @FXML
     private Label cartTotalLabel;
+    
+    @FXML
+    private Label routeLabelFooter;
+
+    @FXML
+    private Label stopLabelFooter;
+
+    @FXML
+    private Label caseTrailerPositionLabelFooter;
 
     /**
      * Initializes the controller class.
@@ -82,6 +91,11 @@ public class ManifestPageViewController implements Initializable
                 new PropertyValueFactory<>("stop"));
         
         cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount()); 
+        
+        routeLabelFooter.setText(String.format("Route: %s", palette.getRouteInfo()));           
+        stopLabelFooter.setText(String.format("Stop: %s", palette.getStopInfo()));
+        caseTrailerPositionLabelFooter.setText(String.format("Trailer Position: %s", 
+                palette.TRAILER_POSITION));
     }
     
     public ManifestPageViewController(Palette palette) {

@@ -11,7 +11,7 @@ and open the template in the editor.
     -fx-background-color: #eeeeee;
 }
 
-#headerGrid, #mainGrid, #footerGrid, #previewGrid {
+#mainGrid, #footerGrid, #previewGrid {
     -fx-hgap: 1em;
 }
 
@@ -98,14 +98,23 @@ and open the template in the editor.
 
 #manifestListView {
     -fx-orientation: horizontal;   
-    -fx-focus-traversable: false;
+    -fx-focus-traversable: false;    
 }
 
-#manifestVBox {
+.page-preview {
     -fx-border-color: #000000;
     -fx-border-width: 1px;
     -fx-background-color: #ffffff;
     -fx-spacing: 20;
+    -fx-padding: 100px 20px 20px 20px;
+    -fx-min-width: 816px;
+    -fx-min-height: 1056px;
+    -fx-max-width: 816px;
+    -fx-max-height: 1056px;
+}
+
+#manifestVBox {
+    
 }
 
 .table-row-cell:filled:selected { 
@@ -128,15 +137,15 @@ and open the template in the editor.
     -fx-border-width: 0;
 }*/
 
-#routeLabel, #stopLabel {
-    -fx-font: 1.5em "Segoe UI";
+.page-header {
+    -fx-font: 35pt "Segoe UI Black";
     -fx-font-weight: bold;
     -fx-alignment: CENTER;
 }
 
 #caseTrailerPositionLabel {
-    -fx-font: 1em "Segoe UI";
-    -fx-font-weight: bold;
+/*    -fx-font: 1em "Segoe UI";
+    -fx-font-weight: bold;*/
 }
 
 #cartTotalLabel {
@@ -172,9 +181,9 @@ and open the template in the editor.
 }
 
 #manifestPage {
-    -fx-padding: 2em;
+/*    -fx-padding: 2em;
     -fx-background-color: #ffffff;
-    -fx-spacing: 20;
+    -fx-spacing: 20;*/
 }
 
 #progressBar {
@@ -230,3 +239,40 @@ and open the template in the editor.
     -fx-font: 1em "Segoe UI";
 }
 
+/*
+*   Print Styles
+*/
+.page-print {    
+    -fx-background-color: #ffffff;
+    -fx-halignment: center;
+    -fx-valignment: top;
+    -fx-fill: true;
+}
+
+.header-grid-print, .footer-grid-print {
+    -fx-vgap: 30;
+    -fx-hgap: 10;
+    -fx-alignment: center;
+}
+
+.page-header-print, .page-footer-print {
+    -fx-font: 30pt "Segoe UI Black";
+    -fx-font-weight: bold;
+}
+
+.page-subheader-print, .page-subfooter-print {
+    -fx-font: 28pt "Segoe UI Light";
+    -fx-alignment: CENTER;
+    -fx-content-display: center;
+}
+
+.table-view-print {
+    -fx-border-color: #000000;
+    -fx-column-halignment: center;
+}
+
+.table-view-print .column-header,
+.table-view-print .column-header .filler,
+.table-view-print .column-header-background .filler {
+    -fx-background-color: red;
+}

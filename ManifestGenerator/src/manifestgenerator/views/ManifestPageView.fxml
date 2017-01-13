@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -9,9 +10,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="manifestPage" alignment="CENTER_LEFT" maxHeight="-Infinity" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="manifestPage" alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="page-print" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <GridPane fx:id="headerGrid">
+      <GridPane fx:id="headerGrid" styleClass="header-grid-print">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -21,12 +22,15 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label fx:id="routeLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
-            <Label fx:id="stopLabel" layoutX="10.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
-            <Label fx:id="caseTrailerPositionLabel" alignment="CENTER" layoutX="310.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <Label fx:id="routeLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-header-print" />
+            <Label fx:id="stopLabel" contentDisplay="RIGHT" layoutX="10.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-header-print" textAlignment="RIGHT" GridPane.columnIndex="1" />
+            <Label fx:id="caseTrailerPositionLabel" alignment="CENTER" layoutX="310.0" layoutY="17.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-subheader-print" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="1" />
          </children>
+         <VBox.margin>
+            <Insets bottom="20.0" />
+         </VBox.margin>
       </GridPane>
-      <TableView fx:id="casesTable" focusTraversable="false">
+      <TableView fx:id="casesTable" focusTraversable="false" styleClass="table-view-print">
          <columns>
             <TableColumn fx:id="itemIdColumn" editable="false" sortable="false" text="WRIN" />
             <TableColumn fx:id="itemDescriptionColumn" editable="false" minWidth="150.0" prefWidth="-1.0" sortable="false" text="DESCRIPTION" />
@@ -41,5 +45,23 @@
          </cursor>
       </TableView>
       <Label fx:id="cartTotalLabel" />
+      <GridPane styleClass="footer-grid-print">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label fx:id="routeLabelFooter" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-footer-print" />
+            <Label fx:id="stopLabelFooter" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-footer-print" textAlignment="RIGHT" GridPane.columnIndex="1" />
+            <Label fx:id="caseTrailerPositionLabelFooter" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-subfooter-print" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+         </children>
+         <VBox.margin>
+            <Insets top="50.0" />
+         </VBox.margin>
+      </GridPane>
    </children>
 </VBox>
