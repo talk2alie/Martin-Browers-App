@@ -26,6 +26,7 @@ import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -42,13 +43,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import manifestgenerator.models.Cases;
 import manifestgenerator.models.ManifestPrinter;
 import manifestgenerator.models.ManifestExporter;
@@ -201,31 +207,37 @@ public class RootLayoutController
 
     @FXML
     void onAboutAction(ActionEvent event) {
-        // Create a custom UI for this
-
-        String about = "Manifest Generator reads an in-house (specific) CSV "
-                + "file and collects route data for various trailers and their "
-                + "respective palettes.\n\r"
-                + "The application was written by students from the "
-                + "Computer Sceince Club at West Chester University "
-                + "of Pennsylvania.\n\r"
-                + "Team Members Include:\n"
-                + "Adrian Rodriguez\n"
-                + "Gina Dedes\n"
-                + "Jason Jackson\n"
-                + "Mohamed Pussah\n"
-                + "Patrick Savella\n"
-                + "Won Murdocq\n"
-                + "----------------------------------------------------------------------\n"
-                + "Apllication Support:\n"
-                + "Adrian Rodriguez (rodriguez.adrian609@gmail.com|609 403 0337)\n"
-                + "Mohamed Pussah (talk2alie@outlook.com|267 357 6840)";
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("About");
-        alert.setHeaderText("About Manifest Generator");
-        alert.setContentText(about);
-        alert.showAndWait();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass()
+                    .getResource("/manifestgenerator/views/AboutPageView.fxml"));
+            BorderPane page = loader.load();
+            
+            Stage aboutDialog = new Stage();
+            aboutDialog.setResizable(Boolean.FALSE);
+            aboutDialog.setTitle("About Mnifest Generator");
+            aboutDialog.initModality(Modality.WINDOW_MODAL);
+            aboutDialog.initOwner(mainStage);
+            aboutDialog.getIcons().addAll(mainStage.getIcons());
+            final int WIDTH = 600, HEIGHT = 400;
+            Scene aboutScene = new Scene(page, WIDTH, HEIGHT);
+            aboutDialog.setScene(aboutScene);
+            aboutScene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
+                if(keyEvent.getCode() == KeyCode.ESCAPE) {
+                    aboutDialog.close();
+                }
+            });
+            
+            aboutScene.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
+                if(mouseEvent.getButton() == MouseButton.PRIMARY) {
+                    aboutDialog.close();
+                }
+            });
+            aboutDialog.centerOnScreen();
+            aboutDialog.showAndWait();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }        
     }
 
     // </editor-fold>
