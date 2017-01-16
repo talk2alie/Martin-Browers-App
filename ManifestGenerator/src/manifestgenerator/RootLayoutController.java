@@ -18,7 +18,6 @@ import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -31,7 +30,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -219,26 +217,7 @@ public class RootLayoutController
             return;
         }
 
-        progressLabel.textProperty().unbind();
-        progressLabel.textProperty().set("");
-        progressBar.progressProperty().unbind();
-        progressBar.progressProperty().set(0);
-        manifestListView.itemsProperty().unbind();
-        manifestListView.itemsProperty().set(FXCollections.observableArrayList());
-        viewModel.totalPageCountInFileProperty().unbind();
-        viewModel.totalPageCountInFileProperty().set(0);
-        viewModel.totalPagesInManifestProperty().unbind();
-        viewModel.totalPagesInManifestProperty().set(0);
-        viewModel.exportButtonDisabledProperty().unbind();
-        viewModel.exportButtonDisabledProperty().set(true);
-        viewModel.printButtonDisabledProperty().unbind();
-        viewModel.printButtonDisabledProperty().set(true);
-        viewModel.setOriginalFilePath(null);
-        viewModel.setOriginalFileName("N/A");
-        viewModel.setCurrentPageInManifest(0);
-        viewModel.setReferencePage(0);
-        viewModel.progressProperty().set(0);
-        viewModel.progressTextProperty().set(null);        
+        clearUserInterface();        
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
@@ -282,7 +261,34 @@ public class RootLayoutController
             viewModel.exportButtonDisabledProperty().bind(paletteManager.workingProperty());
             viewModel.printButtonDisabledProperty().bind(paletteManager.workingProperty());
             new Thread(paletteManager).start();
+        } else {
+            clearUserInterface();
         }
+    }
+
+    private void clearUserInterface() {
+        progressLabel.textProperty().unbind();
+        progressLabel.textProperty().set("");
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().set(0);
+        manifestListView.itemsProperty().unbind();
+        manifestListView.itemsProperty().set(FXCollections.observableArrayList());
+        viewModel.totalPageCountInFileProperty().unbind();
+        viewModel.totalPageCountInFileProperty().set(0);
+        viewModel.totalPagesInManifestProperty().unbind();
+        viewModel.totalPagesInManifestProperty().set(0);
+        viewModel.exportButtonDisabledProperty().unbind();
+        viewModel.exportButtonDisabledProperty().set(true);
+        viewModel.printButtonDisabledProperty().unbind();
+        viewModel.printButtonDisabledProperty().set(true);
+        viewModel.setOriginalFilePath(null);
+        viewModel.setOriginalFileName("N/A");
+        viewModel.setCurrentPageInManifest(0);
+        viewModel.setReferencePage(0);
+        viewModel.progressProperty().set(0);
+        viewModel.progressTextProperty().set(null);
+        printButton.disableProperty().bind(viewModel.printButtonDisabledProperty());
+        exportButton.disableProperty().bind(viewModel.exportButtonDisabledProperty());       
     }
 
     // </editor-fold>

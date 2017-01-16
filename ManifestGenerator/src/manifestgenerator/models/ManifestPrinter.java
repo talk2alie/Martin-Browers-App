@@ -17,6 +17,7 @@ import javafx.print.Paper;
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
 import javafx.scene.layout.VBox;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 /**
@@ -55,8 +56,9 @@ public class ManifestPrinter extends Task<Void>
             Printer defaultPrinter = Printer.getDefaultPrinter();
             PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                     PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
+            
             double printableWidth = layout.getPrintableWidth();
-            double printableHeight = layout.getPrintableHeight();
+            double printableHeight = layout.getPrintableHeight();            
             PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);            
             if (printerJob == null) {
                 try {
@@ -83,10 +85,11 @@ public class ManifestPrinter extends Task<Void>
                     currentPage++;
                     updateMessage(String.format("Printing Page %s of %s...", currentPage, endPage));
                     updateProgress(currentPage, endPage);
-                    vBox.setPrefSize(printableWidth, printableHeight);
-                    vBox.setMaxSize(printableWidth, printableHeight);
-                    System.out.println("Print Width: " + printableWidth);
-                    System.out.println("Print Height: " + printableHeight);
+                    vBox.setMinSize(printableWidth, printableHeight);
+                    final int SCALE_X = 2, SCALE_Y = 2;                    
+                    Scale scale = new Scale(SCALE_X, SCALE_Y);
+                    vBox.getTransforms().add(scale);
+                    //vBox.setMaxSize(printableWidth, printableHeight);
                     boolean printIsSuccessful = printerJob.printPage(vBox);
                     if (!printIsSuccessful) {
                         updateMessage("Something Went Wrong; Please Check Printer...");

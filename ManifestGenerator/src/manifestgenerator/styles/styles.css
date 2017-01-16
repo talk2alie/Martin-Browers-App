@@ -3,11 +3,50 @@
     Author     : Mohamed Pussah
 */
 .root {
-    -fx-background-color: #eeeeee;
+    -fx-background-color: #202e3f;
+}
+
+.menu-bar {
+    -fx-background-color: #202e3f;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #ffffff;
+}
+
+.menu:hover {
+    -fx-background-color: #226ba5;
+}
+
+.menu:hover .label {
+    -fx-text-fill: #ffffff;    
+}
+
+.context-menu {
+    -fx-min-width: 200px;
+    -fx-margin-right: 20px;
+    -fx-padding: 1em 0 1em 0;
+    -fx-background-color: #226ba5;  
+}
+
+.menu-item {
+    -fx-margin: 1em;
+    -fx-padding: 0.5em 1em 0.5em 1em;
+    -fx-min-width: 200px;
+}
+
+.list-cell { 
+    -fx-background-color: #383838;
+}
+
+.list-cell:filled:selected:focused, 
+.list-cell:filled:selected {    
+    -fx-background-color: #606060;
 }
 
 #mainGrid, #footerGrid, #previewGrid {
     -fx-hgap: 1em;
+    -fx-background-color: #202e3f;
 }
 
 #titleLabel {
@@ -22,68 +61,42 @@
 
 #browseTextField, .text-field {
     -fx-background-radius: 0;
-    -fx-background-color: #cccccc;
+    -fx-background-color: #2b4769;
     -fx-font: 1.2em "Segoe UI";
     -fx-font-style: italic;
+    -fx-text-fill: #ffffff;
     -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
 }
 
 #browseButton, #printButton, #exportButton, .default-button {
     -fx-background-radius: 0;
-    -fx-background-color: rgba(204, 204, 204, 1);
+    -fx-background-color: rgba(14, 28, 45, 1);
     -fx-font: 1.2em "Segoe UI";
-    -fx-text-fill: #666666;
+    -fx-text-fill: #2a5588;
     -fx-font-weight: bold;
     -fx-border: none;
     -fx-background-insets: 0;
 }
 
-#browseButton:hover, .default-button:hover {
+#browseButton:hover
+, .default-button:hover
+, #printButton:hover
+, #exportButton:hover
+{
     -fx-cursor: hand;
-    -fx-background-color: rgba(204, 204, 204, 0.8);
+    -fx-background-color: rgba(14, 28, 45, 0.7);
 }
 
-#browseButton:pressed, .default-button:pressed {
-    -fx-background-color: #dddddd;
+#browseButton:pressed
+, .default-button:pressed
+, #printButton:pressed
+, #exportButton:pressed
+{
+    -fx-background-color: rgba(14, 28, 45, 0.5);
 }
 
 #mainGrid, #footerGrid {
     -fx-background-color: rgba(221, 221, 221, 0.6);
-}
-
-#previewGrid {
-    -fx-background-color: rgba(221, 221, 221, 1);
-    -fx-padding: 0;
-}
-
-#previewButton {
-    -fx-background-color: rgba(102, 102, 102, 1);
-    -fx-text-fill: #cccccc;
-    -fx-font: 1.2em "Segoe UI";
-    -fx-font-weight: bold;
-    -fx-background-radius: 0;
-    -fx-border: none;
-    -fx-background-insets: 0;
-}
-
-#previewButton:hover {
-    -fx-background-color: rgba(102, 102, 102, 0.9);
-    -fx-cursor: hand;
-}
-
-#previewButton:pressed {
-    -fx-background-color: #555555;
-    -fx-cursor: hand;
-}
-
-#printButton:hover, #exportButton:hover {
-    -fx-cursor: hand;
-    -fx-background-color: rgba(204, 204, 204, 0.7);
-}
-
-#printButton:pressed, #exportButton:pressed {
-    -fx-cursor: hand;
-    -fx-background-color: rgba(204, 204, 204, 0.5);
 }
 
 #manifestInfoHBox {
@@ -94,6 +107,7 @@
 #manifestListView {
     -fx-orientation: horizontal;   
     -fx-focus-traversable: false;  
+    -fx-background-color: #383838;
 }
 
 #previousButton, #nextButton {
@@ -137,7 +151,7 @@
 }
 
 #progressBar:indeterminate > .bar, #progressBar:determinate > .bar {
-    -fx-background-color: rgba(102, 102, 102, 1);
+    -fx-background-color: rgba(14, 24, 35, 1);
     -fx-background-radius: 0;
 }
 
@@ -147,7 +161,7 @@
 }
 
 #progressBar > .track {    
-    -fx-background-color:#dddddd;
+    -fx-background-color:#395E8C;
     -fx-background-insets: 0;
     -fx-background-radius: 0; 
 }
@@ -155,20 +169,8 @@
 #progressLabel {
     -fx-alignment: CENTER;
     -fx-font: 1.5em "Segoe UI Black";
-    -fx-text-fill: #999999;
+    -fx-text-fill: #617EA3;
     -fx-font-style: italic;
-}
-
-.context-menu {
-    -fx-min-width: 200px;
-    -fx-margin-right: 20px;
-    -fx-padding: 1em 0;
-}
-
-.menu-item {
-    -fx-margin: 1em;
-    -fx-padding: 0.5em 1em;
-    -fx-min-width: 200px;
 }
 
 .tool-tip {
