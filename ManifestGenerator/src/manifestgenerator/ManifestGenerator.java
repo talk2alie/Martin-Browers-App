@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -36,6 +37,7 @@ public class ManifestGenerator extends Application
         stage.setMinWidth(1024);
         stage.setMinHeight(768);
         stage.setMaximized(Boolean.TRUE);
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/manifestgenerator/resources/icon.png")));
         Scene scene = new Scene(root);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.F1) {

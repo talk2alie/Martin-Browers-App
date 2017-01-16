@@ -6,13 +6,9 @@ package manifestgenerator.models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.concurrent.Task;
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
@@ -60,7 +56,6 @@ public class ManifestPrinter extends Task<Void>
             PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                     PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
             double printableWidth = layout.getPrintableWidth();
-            System.out.println(String.format("Margin: %s %s %s %s", layout.getTopMargin(), layout.getRightMargin(), layout.getBottomMargin(), layout.getLeftMargin()));
             double printableHeight = layout.getPrintableHeight();
             PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);            
             if (printerJob == null) {

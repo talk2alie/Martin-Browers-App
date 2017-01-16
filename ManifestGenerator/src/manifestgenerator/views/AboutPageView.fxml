@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -8,8 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <GridPane BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -89,19 +91,19 @@
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
                   <ColumnConstraints hgrow="SOMETIMES" />
-                <ColumnConstraints hgrow="SOMETIMES" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" />
                   <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
               </columnConstraints>
               <rowConstraints>
                   <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
-                  <RowConstraints percentHeight="13.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+                  <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="35.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Manifest Generator is a customized solution, written by students of the West Chester University of Pennsylvania's Computer Science Club. It takes in a Comma Separated Value (CSV) file, containing Martin Browers' route data, and produces palette manifests for each trailer position contained within the file. Once generated, these manifests can be printed directly from the application, or exported to Microsoft Word for more specific formatting." textAlignment="CENTER" textFill="#b8ebff" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" GridPane.valignment="TOP">
+                  <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Manifest Generator is a customized solution, written by students of the West Chester University of Pennsylvania's Computer Science Club. It takes in a Comma Separated Value (CSV) file, containing Martin Browers' route data, and produces palette manifests for each trailer position contained within the file. Once generated, these manifests can be printed directly from the application, or exported to Microsoft Word for more specific formatting." textAlignment="CENTER" textFill="#b8ebff" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4" GridPane.valignment="TOP">
                      <font>
                         <Font name="Segoe UI" size="12.0" />
                      </font>
@@ -109,6 +111,23 @@
                   <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Manifest Generator" textAlignment="CENTER" textFill="WHITE" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2">
                      <font>
                         <Font name="Segoe UI" size="28.0" />
+                     </font>
+                  </Label>
+                  <VBox GridPane.columnIndex="2" GridPane.rowIndex="1">
+                     <children>
+                        <ImageView fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/icon.png" />
+                           </image>
+                           <effect>
+                              <DropShadow blurType="GAUSSIAN" />
+                           </effect>
+                        </ImageView>
+                     </children>
+                  </VBox>
+                  <Label text="Version 1.0.324.112" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="10.0" />
                      </font>
                   </Label>
                </children>

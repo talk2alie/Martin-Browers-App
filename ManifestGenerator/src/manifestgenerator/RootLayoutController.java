@@ -328,7 +328,7 @@ public class RootLayoutController
                         " of ", viewModel.totalPagesInManifestProperty()
                 ));
 
-        helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
+        //helpMenuItem.setAccelerator(KeyCombination.keyCombination("F1"));
         progressBar.progressProperty().bind(viewModel.progressProperty());
         progressLabel.textProperty().bind(viewModel.progressTextProperty());
         printMenuItem.disableProperty().bind(printButton.disableProperty());
