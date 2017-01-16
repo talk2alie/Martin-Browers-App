@@ -60,6 +60,7 @@ public class ManifestPrinter extends Task<Void>
             PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
                     PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
             double printableWidth = layout.getPrintableWidth();
+            System.out.println(String.format("Margin: %s %s %s %s", layout.getTopMargin(), layout.getRightMargin(), layout.getBottomMargin(), layout.getLeftMargin()));
             double printableHeight = layout.getPrintableHeight();
             PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);            
             if (printerJob == null) {
@@ -89,6 +90,8 @@ public class ManifestPrinter extends Task<Void>
                     updateProgress(currentPage, endPage);
                     vBox.setPrefSize(printableWidth, printableHeight);
                     vBox.setMaxSize(printableWidth, printableHeight);
+                    System.out.println("Print Width: " + printableWidth);
+                    System.out.println("Print Height: " + printableHeight);
                     boolean printIsSuccessful = printerJob.printPage(vBox);
                     if (!printIsSuccessful) {
                         updateMessage("Something Went Wrong; Please Check Printer...");

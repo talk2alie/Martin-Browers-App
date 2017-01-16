@@ -44,7 +44,7 @@
             <Cursor fx:constant="DEFAULT" />
          </cursor>
       </TableView>
-      <Label fx:id="cartTotalLabel" />
+      <Label fx:id="cartTotalLabel" styleClass="cart-total-label-print" />
       <GridPane styleClass="footer-grid-print">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -56,11 +56,11 @@
         </rowConstraints>
          <children>
             <Label fx:id="routeLabelFooter" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-footer-print" />
-            <Label fx:id="stopLabelFooter" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-footer-print" textAlignment="RIGHT" GridPane.columnIndex="1" />
-            <Label fx:id="caseTrailerPositionLabelFooter" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-subfooter-print" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <Label fx:id="stopLabelFooter" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-footer-print" textAlignment="JUSTIFY" GridPane.columnIndex="1" />
+            <Label fx:id="caseTrailerPositionLabelFooter" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="page-subfooter-print" textAlignment="CENTER" GridPane.columnSpan="2" GridPane.rowIndex="1" />
          </children>
          <VBox.margin>
-            <Insets top="50.0" />
+            <Insets top="200.0" />
          </VBox.margin>
       </GridPane>
    </children>

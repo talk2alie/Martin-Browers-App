@@ -29,11 +29,11 @@
           <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="20.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
-            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="20.0" vgrow="SOMETIMES" />
           <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
-            <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4" GridPane.rowIndex="3">
@@ -60,10 +60,10 @@
                 <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="3.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="90.0" vgrow="SOMETIMES" />
                   <RowConstraints percentHeight="2.0" vgrow="SOMETIMES" />
-                <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="6.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <GridPane fx:id="sliderGrid" GridPane.columnSpan="2" GridPane.rowIndex="1">

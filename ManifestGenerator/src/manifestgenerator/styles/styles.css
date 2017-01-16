@@ -1,11 +1,6 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
 /* 
     Created on : Dec 22, 2016, 2:11:14 PM
-    Author     : talk2
+    Author     : Mohamed Pussah
 */
 .root {
     -fx-background-color: #eeeeee;
@@ -98,59 +93,7 @@ and open the template in the editor.
 
 #manifestListView {
     -fx-orientation: horizontal;   
-    -fx-focus-traversable: false;    
-}
-
-.page-preview {
-    -fx-border-color: #000000;
-    -fx-border-width: 1px;
-    -fx-background-color: #ffffff;
-    -fx-spacing: 20;
-    -fx-padding: 100px 20px 20px 20px;
-    -fx-min-width: 816px;
-    -fx-min-height: 1056px;
-    -fx-max-width: 816px;
-    -fx-max-height: 1056px;
-}
-
-#manifestVBox {
-    
-}
-
-.table-row-cell:filled:selected { 
-  -fx-background: -fx-control-inner-background ;
-  -fx-background-color: -fx-table-cell-border-color, -fx-background ;
-  -fx-background-insets: 0, 0 0 1 0 ;
-  -fx-table-cell-border-color: derive(-fx-color, 5%);
-}
-.table-row-cell:odd:filled:selected {
-  -fx-background: -fx-control-inner-background-alt ;
-}
-
-/*.table-row-cell:empty {
-    -fx-background-color: transparent;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-cell-border-width: 0;
-}
- 
-.table-row-cell:empty .table-cell {
-    -fx-border-width: 0;
-}*/
-
-.page-header {
-    -fx-font: 35pt "Segoe UI Black";
-    -fx-font-weight: bold;
-    -fx-alignment: CENTER;
-}
-
-#caseTrailerPositionLabel {
-/*    -fx-font: 1em "Segoe UI";
-    -fx-font-weight: bold;*/
-}
-
-#cartTotalLabel {
-    -fx-font: 1em "Segoe UI";
-    -fx-font-weight: bold;
+    -fx-focus-traversable: false;  
 }
 
 #previousButton, #nextButton {
@@ -178,12 +121,6 @@ and open the template in the editor.
 
 #originalFileLabel, #foundOnPageLabel, #manifestPositionLabel {
     -fx-alignment: center;
-}
-
-#manifestPage {
-/*    -fx-padding: 2em;
-    -fx-background-color: #ffffff;
-    -fx-spacing: 20;*/
 }
 
 #progressBar {
@@ -240,39 +177,308 @@ and open the template in the editor.
 }
 
 /*
+*   Print Preview Styles
+*/
+.page-print-preview {    
+    -fx-background-color: #ffffff;
+    -fx-halignment: center;
+    -fx-valignment: top;
+    -fx-fill-width: true;       
+    -fx-max-width: 504px;    
+    -fx-max-height: 684px;
+    -fx-padding: 54;
+    -fx-border-color: #000000;
+    -fx-border-width: 1px;
+}
+
+.header-grid-print-preview {
+    -fx-vgap: 10;
+    -fx-hgap: 20;
+    -fx-alignment: center;
+}
+
+.footer-grid-print-preview {
+    -fx-vgap: 10;
+    -fx-hgap: 10;
+    -fx-alignment: center;
+}
+
+.page-header-print-preview, .page-footer-print-preview {
+    -fx-font-family: "Segoe UI Black";
+}
+
+.page-header-print-preview {
+    -fx-font-size: 14pt;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+}
+
+.page-footer-print-preview {
+    -fx-font-size: 22pt;
+}
+
+#routeLabelFooterPreview {
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+    -fx-content-display: left;
+}
+
+#stopLabelFooterPreview {
+    -fx-text-alignment: right;
+    -fx-alignment: center-right;
+    -fx-content-display: right;
+}
+
+.page-subheader-print-preview, .page-subfooter-print-preview {
+    -fx-font-family: "Segoe UI Light";
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+}
+
+.page-subheader-print-preview {
+    -fx-font-size: 14pt;
+}
+
+.page-subfooter-print-preview {
+    -fx-font-size: 20pt;
+}
+
+.table-view-print-preview {    
+    -fx-base: #ffffff;
+    -fx-control-inner-background: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-table-cell-border-color: #dddddd;
+    -fx-table-header-border-color: #dddddd;
+    -fx-border-width: 1px;
+    -fx-border-insets: 0;
+    -fx-padding: 5;
+}
+
+.table-view-print-preview .column-header,
+.table-view-print-preview .column-header .filler,
+.table-view-print-preview .column-header-background .filler {
+    -fx-background-color: #f6f6f6;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0.5px;
+}
+
+.table-view-print-preview .scroll-bar:horizontal .increment-arrow,
+.table-view-print-preview .scroll-bar:horizontal .decrement-arrow,
+.table-view-print-preview .scroll-bar:horizontal .increment-button,
+.table-view-print-preview .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0; /*Hide scrolling for the Cases Table*/
+}
+
+.table-view-print-preview .scroll-bar:vertical .increment-arrow,
+.table-view-print-preview .scroll-bar:vertical .decrement-arrow,
+.table-view-print-preview .scroll-bar:vertical .increment-button,
+.table-view-print-preview .scroll-bar:vertical .decrement-button {
+    -fx-padding:0; /*Hide scrolling for the Cases Table*/
+}
+
+.table-view-print-preview .column-header .label {
+    -fx-font-size: 10pt;
+    -fx-font-family: "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+    -fx-alignment: center;    
+}
+
+.table-view-print-preview .table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-view-print-preview .table-row-cell .text {
+    -fx-font-size: 12pt;
+    -fx-font-family: "Segoe UI";
+    -fx-text-fill: #000000;
+    -fx-alignment: center;         
+}
+
+.table-view-print-preview .table-row-cell .table-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0.5px;
+    -fx-alignment: center;
+}
+
+.table-view-print-preview .table-row-cell:odd .table-cell {
+    -fx-background-color: #f6f6f6;          
+}
+
+/*Remove highlighting of rows when selected*/
+.table-row-cell:filled:selected {
+  -fx-background: -fx-control-inner-background ;
+  -fx-background-color: -fx-table-cell-border-color, -fx-background ;
+  -fx-background-insets: 0, 0 0 1 0 ;
+  -fx-table-cell-border-color: derive(-fx-color, 5%);
+}
+
+.table-row-cell:odd:filled:selected {
+  -fx-background: -fx-control-inner-background-alt ;
+}
+
+/*Done with Remove highlighting of rows when selected*/
+
+.table-view-print-preview .table-row-cell:empty {
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.table-view-print-preview .table-row-cell:empty .table-cell {
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent; 
+}
+
+.cart-total-label-print-preview {
+    -fx-font: 12pt "Segoe UI";
+    -fx-font-weight: bold;
+}
+
+
+/*
 *   Print Styles
 */
 .page-print {    
     -fx-background-color: #ffffff;
     -fx-halignment: center;
     -fx-valignment: top;
-    -fx-fill: true;
+    -fx-fill-width: true;    
 }
 
-.header-grid-print, .footer-grid-print {
+.header-grid-print {
+    -fx-vgap: 10;
+    -fx-hgap: 20;
+    -fx-alignment: center;
+}
+
+.footer-grid-print {
     -fx-vgap: 30;
     -fx-hgap: 10;
     -fx-alignment: center;
 }
 
 .page-header-print, .page-footer-print {
-    -fx-font: 30pt "Segoe UI Black";
-    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI Black";
+}
+
+.page-header-print {
+    -fx-font-size: 18pt;
+    -fx-alignment: center;
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+}
+
+.page-footer-print {
+    -fx-font-size: 30pt;
+}
+
+#routeLabelFooter {
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+    -fx-content-display: left;
+}
+
+#stopLabelFooter {
+    -fx-text-alignment: right;
+    -fx-alignment: center-right;
+    -fx-content-display: right;
 }
 
 .page-subheader-print, .page-subfooter-print {
-    -fx-font: 28pt "Segoe UI Light";
-    -fx-alignment: CENTER;
+    -fx-font-family: "Segoe UI Light";
+    -fx-alignment: center;
     -fx-content-display: center;
+    -fx-text-alignment: center;
 }
 
-.table-view-print {
-    -fx-border-color: #000000;
-    -fx-column-halignment: center;
+.page-subheader-print {
+    -fx-font-size: 18pt;
+}
+
+.page-subfooter-print {
+    -fx-font-size: 28pt;
+}
+
+.table-view-print {    
+    -fx-base: #ffffff;
+    -fx-control-inner-background: #ffffff;
+    -fx-background-color: #ffffff;
+    -fx-table-cell-border-color: #dddddd;
+    -fx-table-header-border-color: #dddddd;
+    -fx-border-insets: 0;
+    -fx-border-width: 1px;
+    -fx-padding: 5;
 }
 
 .table-view-print .column-header,
 .table-view-print .column-header .filler,
 .table-view-print .column-header-background .filler {
-    -fx-background-color: red;
+    -fx-background-color: #f6f6f6;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0.5px;
 }
+
+.table-view-print .scroll-bar:horizontal .increment-arrow,
+.table-view-print .scroll-bar:horizontal .decrement-arrow,
+.table-view-print .scroll-bar:horizontal .increment-button,
+.table-view-print .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0; /*Hide scrolling for the Cases Table*/
+}
+
+.table-view-print .scroll-bar:vertical .increment-arrow,
+.table-view-print .scroll-bar:vertical .decrement-arrow,
+.table-view-print .scroll-bar:vertical .increment-button,
+.table-view-print .scroll-bar:vertical .decrement-button {
+    -fx-padding:0; /*Hide scrolling for the Cases Table*/
+}
+
+.table-view-print .column-header .label {
+    -fx-font-size: 12pt;
+    -fx-font-family: "Segoe UI";
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+    -fx-alignment: center;    
+}
+
+.table-view-print .table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.table-view-print .table-row-cell .text {
+    -fx-font-size: 14pt;
+    -fx-font-family: "Segoe UI";
+    -fx-text-fill: #000000;
+    -fx-alignment: center;         
+}
+
+.table-view-print .table-row-cell .table-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0.5px;
+    -fx-alignment: center;
+}
+
+.table-view-print .table-row-cell:odd .table-cell {
+    -fx-background-color: #f6f6f6;
+}
+
+.table-view-print .table-row-cell:empty {
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.table-view-print .table-row-cell:empty .table-cell {
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+    -fx-background-color: transparent; 
+}
+
+.cart-total-label-print {
+    -fx-font: 14pt "Segoe UI";
+    -fx-font-weight: bold;
+}
+

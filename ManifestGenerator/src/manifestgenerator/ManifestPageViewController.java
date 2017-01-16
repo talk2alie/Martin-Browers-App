@@ -24,7 +24,8 @@ import manifestgenerator.models.Palette;
  */
 public class ManifestPageViewController implements Initializable
 {
-    private Palette palette;
+
+    private final Palette palette;
 
     @FXML
     private VBox manifestPage;
@@ -58,7 +59,7 @@ public class ManifestPageViewController implements Initializable
 
     @FXML
     private Label cartTotalLabel;
-    
+
     @FXML
     private Label routeLabelFooter;
 
@@ -68,6 +69,13 @@ public class ManifestPageViewController implements Initializable
     @FXML
     private Label caseTrailerPositionLabelFooter;
 
+    private void setCasesTableHeight(int rowCount) {
+        final int FIRST_ROW_HEIGHT = 70;
+        final int INCREMENT_PER_ROW = 30;
+        casesTable.setPrefHeight(
+                FIRST_ROW_HEIGHT + ((rowCount - 1) * INCREMENT_PER_ROW));
+    }
+
     /**
      * Initializes the controller class.
      */
@@ -75,29 +83,31 @@ public class ManifestPageViewController implements Initializable
     public void initialize(URL url, ResourceBundle rb) {
         ObservableList<Cases> cases = FXCollections
                 .observableArrayList(palette.getSortedCaseList());
-        routeLabel.setText(String.format("Route: %s", palette.getRouteInfo()));           
+        routeLabel.setText(String.format("Route: %s", palette.getRouteInfo()));
         stopLabel.setText(String.format("Stop: %s", palette.getStopInfo()));
-        caseTrailerPositionLabel.setText(String.format("Trailer Position: %s", 
+        caseTrailerPositionLabel.setText(String.format("Trailer Position: %s",
                 palette.TRAILER_POSITION));
-        
+
+        setCasesTableHeight(cases.size());
         casesTable.setItems(cases);
         itemIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("contentId"));
         itemDescriptionColumn.setCellValueFactory(
                 new PropertyValueFactory<>("content"));
         casesColumn.setCellValueFactory(
-                new PropertyValueFactory<>("quantity")); 
+                new PropertyValueFactory<>("quantity"));
         stopColumn.setCellValueFactory(
                 new PropertyValueFactory<>("stop"));
-        
-        cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount()); 
-        
-        routeLabelFooter.setText(String.format("Route: %s", palette.getRouteInfo()));           
+
+        cartTotalLabel.setText("CART TOTAL: " + palette.getCaseCount());
+
+        routeLabelFooter.setText(String.format("Route: %s", palette.getRouteInfo()));
         stopLabelFooter.setText(String.format("Stop: %s", palette.getStopInfo()));
-        caseTrailerPositionLabelFooter.setText(String.format("Trailer Position: %s", 
+        caseTrailerPositionLabelFooter.setText(String.format("Trailer Position: %s",
                 palette.TRAILER_POSITION));
+
     }
-    
+
     public ManifestPageViewController(Palette palette) {
         this.palette = palette;
     }

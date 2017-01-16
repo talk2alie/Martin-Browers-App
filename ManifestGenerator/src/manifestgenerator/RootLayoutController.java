@@ -9,19 +9,11 @@ import java.beans.XMLDecoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,11 +22,6 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.print.PageLayout;
-import javafx.print.PageOrientation;
-import javafx.print.Paper;
-import javafx.print.Printer;
-import javafx.print.PrinterJob;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -49,32 +36,17 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import manifestgenerator.models.Cases;
 import manifestgenerator.models.ManifestPrinter;
 import manifestgenerator.models.ManifestExporter;
-import manifestgenerator.models.PrintView;
 import manifestgenerator.models.ManifestViewModel;
 import manifestgenerator.models.Palette;
 import manifestgenerator.models.PaletteListViewCell;
 import manifestgenerator.models.PaletteManager;
 import manifestgenerator.models.PreferencesViewModel;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.apache.poi.xwpf.usermodel.XWPFTableCell;
-import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
 
 /**
  * FXML Controller class
@@ -84,7 +56,6 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
 public class RootLayoutController
         implements Initializable
 {
-
     // <editor-fold defaultstate="collapsed" desc="Fields">
     private Stage mainStage;
     private final ManifestViewModel viewModel;
@@ -123,7 +94,7 @@ public class RootLayoutController
 
     @FXML
     private Button browseButton;
-    
+
     @FXML
     private MenuItem browseMenuItem;
 
@@ -243,13 +214,31 @@ public class RootLayoutController
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Helpers">
     private void onBrowse() {
-        
-        if(browseButton.isDisabled()) {
+
+        if (browseButton.isDisabled()) {
             return;
         }
-        
-        progressBar.progressProperty().unbind();
+
         progressLabel.textProperty().unbind();
+        progressLabel.textProperty().set("");
+        progressBar.progressProperty().unbind();
+        progressBar.progressProperty().set(0);
+        manifestListView.itemsProperty().unbind();
+        manifestListView.itemsProperty().set(FXCollections.observableArrayList());
+        viewModel.totalPageCountInFileProperty().unbind();
+        viewModel.totalPageCountInFileProperty().set(0);
+        viewModel.totalPagesInManifestProperty().unbind();
+        viewModel.totalPagesInManifestProperty().set(0);
+        viewModel.exportButtonDisabledProperty().unbind();
+        viewModel.exportButtonDisabledProperty().set(true);
+        viewModel.printButtonDisabledProperty().unbind();
+        viewModel.printButtonDisabledProperty().set(true);
+        viewModel.setOriginalFilePath(null);
+        viewModel.setOriginalFileName("N/A");
+        viewModel.setCurrentPageInManifest(0);
+        viewModel.setReferencePage(0);
+        viewModel.progressProperty().set(0);
+        viewModel.progressTextProperty().set(null);        
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Manifest Data File");
@@ -292,10 +281,7 @@ public class RootLayoutController
             viewModel.totalPagesInManifestProperty().bind(paletteManager.totalManifestPagesProperty());
             viewModel.exportButtonDisabledProperty().bind(paletteManager.workingProperty());
             viewModel.printButtonDisabledProperty().bind(paletteManager.workingProperty());
-            viewModel.currentIndexProperty().bind(manifestListView.getSelectionModel().selectedIndexProperty());
             new Thread(paletteManager).start();
-
-            viewModel.setNextButtonDisabled(Boolean.FALSE);
         }
     }
 
@@ -414,10 +400,10 @@ public class RootLayoutController
 
             @Override
             protected String computeValue() {
-                if(printer.getProgress() < 0) {
+                if (printer.getProgress() < 0) {
                     return printer.messageProperty().get();
                 }
-                
+
                 return String.format("%s%s%%", printer.messageProperty().get(),
                         Math.round(printer.progressProperty().multiply(100).get()));
             }
