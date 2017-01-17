@@ -23,8 +23,9 @@ import javafx.stage.Stage;
 /**
  *
  */
-public class ManifestPrinter extends Task<Void>
-{
+public class ManifestPrinter
+        extends Task<Void> {
+
     private final List<Palette> palettes;
     private final Stage mainStage;
     private int currentPage;
@@ -33,7 +34,8 @@ public class ManifestPrinter extends Task<Void>
 
     public ManifestPrinter(List<Palette> palettes, Stage stage) {
         if (palettes == null || palettes.isEmpty()) {
-            throw new NullPointerException("The palettes to print cannot be null or empty");
+            throw new NullPointerException(
+                    "The palettes to print cannot be null or empty");
         }
 
         if (stage == null) {
@@ -53,29 +55,27 @@ public class ManifestPrinter extends Task<Void>
         ArrayList<VBox> pages = new PrintView(palettes).getManifestViews();
         updateProgress(-1, totalPageCount);
         Platform.runLater(() -> {
-            Printer defaultPrinter = Printer.getDefaultPrinter();
-            PageLayout layout = defaultPrinter.createPageLayout(Paper.NA_LETTER,
-                    PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
-            
-            double printableWidth = layout.getPrintableWidth();
-            double printableHeight = layout.getPrintableHeight();            
-            PrinterJob printerJob = PrinterJob.createPrinterJob(defaultPrinter);            
+            PrinterJob printerJob = PrinterJob.createPrinterJob();
             if (printerJob == null) {
                 try {
                     throw new Exception("There was a problem.");
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                     updateMessage("PrinterJob was null.");
                     return;
                 }
             }
-                        
+
             printerJob.getJobSettings().setPageRanges(new PageRange(1, totalPageCount));
-            if(printerJob.showPrintDialog(mainStage)) {
-                int endPage = printerJob.getJobSettings().getPageRanges()[0].getEndPage();                
+            if (printerJob.showPrintDialog(mainStage)) {
+                Printer printer = printerJob.getPrinter();   
+                PageLayout layout = printer.createPageLayout(Paper.NA_LETTER,
+                        PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
+                double printableWidth = layout.getPrintableWidth();
+                double printableHeight = layout.getPrintableHeight();
+                int endPage = printerJob.getJobSettings().getPageRanges()[0].getEndPage();
                 while (currentPage < endPage) {
-                    if(pages.size() <= 0) {
+                    if (pages.size() <= 0) {
                         updateMessage("We could not generate pages for printing.");
                         printerJob.cancelJob();
                         return;
@@ -83,19 +83,17 @@ public class ManifestPrinter extends Task<Void>
                     VBox vBox = pages.get(currentPage);
                     printerJob.getJobSettings().setPageRanges(new PageRange(1, totalPageCount));
                     currentPage++;
-                    updateMessage(String.format("Printing Page %s of %s...", currentPage, endPage));
+                    updateMessage(String.format("Printing Page %s of %s...",
+                            currentPage, endPage));
                     updateProgress(currentPage, endPage);
                     vBox.setMinSize(printableWidth, printableHeight);
-                    final int SCALE_X = 2, SCALE_Y = 2;                    
-                    Scale scale = new Scale(SCALE_X, SCALE_Y);
-                    vBox.getTransforms().add(scale);
-                    //vBox.setMaxSize(printableWidth, printableHeight);
                     boolean printIsSuccessful = printerJob.printPage(vBox);
                     if (!printIsSuccessful) {
-                        updateMessage("Something Went Wrong; Please Check Printer...");
+                        updateMessage(
+                                "Something Went Wrong; Please Check Printer...");
                         printerJob.cancelJob();
                         return;
-                    }         
+                    }
                 }
                 printerJob.endJob();
                 updateMessage("All Manifests Sent to Printer...");
@@ -108,12 +106,13 @@ public class ManifestPrinter extends Task<Void>
         });
         return null;
     }
-        
+
     public final boolean getWorking() {
         return working.get();
     }
-    
-    public final ReadOnlyBooleanProperty workingProperty(){
+
+    public final ReadOnlyBooleanProperty workingProperty() {
         return working.getReadOnlyProperty();
     }
+
 }
