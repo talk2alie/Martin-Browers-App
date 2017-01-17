@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -38,8 +39,8 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
 /**
  *
  */
-public class ManifestExporter extends Task<Void>
-{
+public class ManifestExporter
+        extends Task<Void> {
 
     private final List<Palette> palettes;
     private String initialFileName;
@@ -69,7 +70,8 @@ public class ManifestExporter extends Task<Void>
         footerRun.setBold(true);
         footerRun.setFontFamily("Segoe UI");
         footerRun.setFontSize(FONT_SIZE);
-        footerRun.setText(String.format("CART TOTAL: %s", palette.getCaseCount()));
+        footerRun.setText(String
+                .format("CART TOTAL: %s", palette.getCaseCount()));
         footerRun.addBreak();
         footerRun.addBreak();
         footerRun.addBreak();
@@ -89,7 +91,8 @@ public class ManifestExporter extends Task<Void>
         XWPFRun subheaderRun = subheader.createRun();
         subheaderRun.setFontFamily("Segoe UI Light");
         subheaderRun.setFontSize(FONT_SIZE);
-        subheaderRun.setText(String.format("Trailer Position: %s", palette.TRAILER_POSITION));
+        subheaderRun.setText(String.format("Trailer Position: %s",
+                palette.TRAILER_POSITION));
     }
 
     private void createHeader(XWPFDocument manifestDocument, Palette palette) {
@@ -106,10 +109,11 @@ public class ManifestExporter extends Task<Void>
         headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
     }
 
-    private void createDocument(File file) throws FileNotFoundException, IOException {
+    private void createDocument(File file) throws FileNotFoundException,
+            IOException {
         updateMessage("Getting Things Ready...");
         updateProgress(-1, palettes.size());
-        
+
         InputStream baseFileStream = new FileInputStream("manifest_base.docx");
         XWPFDocument manifestDocument = new XWPFDocument(baseFileStream);
 
@@ -128,7 +132,8 @@ public class ManifestExporter extends Task<Void>
         int processedPalettesCount = 0;
         // Note that each palette can produce a single manifest page
         for (Palette palette : palettes) {
-            updateMessage(String.format("Exporting Page %s of %s...", ++currentPage, palettes.size()));
+            updateMessage(String.format("Exporting Page %s of %s...",
+                    ++currentPage, palettes.size()));
             updateProgress(currentPage, palettes.size());
 
             createHeader(manifestDocument, palette);
@@ -136,7 +141,8 @@ public class ManifestExporter extends Task<Void>
             // Add 1 for header row            
             int rowCount = palette.CASES.size() + 1;
             // Create cases table
-            XWPFTable casesTable = manifestDocument.createTable(rowCount, COLUMN_COUNT);
+            XWPFTable casesTable = manifestDocument.createTable(rowCount,
+                    COLUMN_COUNT);
             CTTblPr tableProperties = casesTable.getCTTbl().getTblPr();
             CTString styleStr = tableProperties.addNewTblStyle();
             styleStr.setVal(TABLE_STYLE);
@@ -148,7 +154,9 @@ public class ManifestExporter extends Task<Void>
                 List<XWPFTableCell> cells = row.getTableCells();
                 // Add content to each cell
                 for (XWPFTableCell cell : cells) {
-                    cell.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
+                    cell
+                            .setVerticalAlignment(
+                                    XWPFTableCell.XWPFVertAlign.CENTER);
 
                     // Get a table cell properties element (tcPr)
                     CTTcPr cellProperties = cell.getCTTc().addNewTcPr();
@@ -180,9 +188,9 @@ public class ManifestExporter extends Task<Void>
                         if (columnIndex == STOP_COLUMN) {
                             cellRun.setText("STOP");
                         }
-                    }
-                    else {
-                        Cases cases = palette.getSortedCaseList().get(rowIndex - 1);
+                    } else {
+                        Cases cases = palette.getSortedCaseList().get(
+                                rowIndex - 1);
                         if (columnIndex == WRIN_COLUMN) {
                             cellRun.setText(cases.getContentId());
                         }
@@ -214,7 +222,8 @@ public class ManifestExporter extends Task<Void>
             // Create page break
             processedPalettesCount++;
             if (processedPalettesCount < palettes.size()) {
-                XWPFParagraph pageBreakParagraph = manifestDocument.createParagraph();
+                XWPFParagraph pageBreakParagraph = manifestDocument
+                        .createParagraph();
                 pageBreakParagraph.setPageBreak(Boolean.TRUE);
             }
         }
@@ -233,40 +242,62 @@ public class ManifestExporter extends Task<Void>
         updateProgress(0, palettes.size());
     }
 
+    public void append(FileWriter w, String s) {
+        try {
+            w.append(s);
+            w.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ManifestExporter.class.getName())
+                    .log(Level.SEVERE, null, ex);
+        }
+    }
+
     @Override
     protected Void call() throws Exception {
         updateMessage("Generating Initial File Name...");
         updateProgress(0, palettes.size());
-
+        FileWriter writer = new FileWriter("C:\\Users\\Public\\log.txt");
         Platform.runLater(() -> {
             Date cureentDate = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
-            initialFileName = String.format("Manifest_%s", dateFormat.format(cureentDate));
+
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat("MMddyyyy_hhmmss");
+            initialFileName = String.format("Manifest_%s", dateFormat.format(
+                    cureentDate));
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Export Manifests to MS Word");
             fileChooser.getExtensionFilters().clear();
-            fileChooser.getExtensionFilters().add(new ExtensionFilter("Microsoft Word", "*.docx"));
-            if (defaultOutputDirectory != null && defaultOutputDirectory.length() > 0) {
+            fileChooser.getExtensionFilters().add(new ExtensionFilter(
+                    "Microsoft Word", "*.docx"));
+            append(writer, "2");
+            if (defaultOutputDirectory != null && defaultOutputDirectory
+                    .length() > 0) {
                 File outputDirectory = new File(defaultOutputDirectory);
                 fileChooser.setInitialDirectory(outputDirectory);
             }
+            append(writer, "3");
             fileChooser.setInitialFileName(initialFileName);
             updateMessage("Getting File...");
+            append(writer, "4");
             file = fileChooser.showSaveDialog(mainStage);
             if (file == null) {
                 updateMessage("Export Cancelled...");
+                append(writer, "5");
                 updateProgress(0, palettes.size());
                 cancel();
                 working.set(false);
-            }
-            else {
+            } else {
                 try {
                     createDocument(file);
+                    append(writer, "6");
                     updateMessage("Export Completed...");
                     working.set(false);
-                }
-                catch (IOException ex) {
+                } catch (IOException ex) {
                     // TODO: Log Error
+                    append(writer, ex.getMessage());
+                    for (StackTraceElement el : ex.getStackTrace()) {
+                        append(writer, el.toString());
+                    }
                     ex.printStackTrace();
                 }
             }
@@ -281,4 +312,5 @@ public class ManifestExporter extends Task<Void>
     public final ReadOnlyBooleanProperty workingProperty() {
         return working.getReadOnlyProperty();
     }
+
 }
