@@ -154,6 +154,7 @@ public class RootLayoutController
             final int WIDTH = 700, HEIGHT = 200;
             Scene preferencesScene = new Scene(page, WIDTH, HEIGHT);
             preferencesDialog.setScene(preferencesScene);
+            preferencesDialog.getIcons().add(mainStage.getIcons().get(0));
             preferencesDialog.setOnCloseRequest(closeEvent -> {
                 System.out.println("Preferences closed");
                 preferencesController.savePreferences(PREFERENCES);

@@ -35,7 +35,6 @@ import javafx.concurrent.Task;
  */
 public class PaletteManager extends Task<ObservableList<Palette>>
 {
-
     private final ReadOnlyObjectWrapper<ObservableList<Palette>> palettes;
     private final ReadOnlyIntegerWrapper totalPages;
     private final ReadOnlyIntegerWrapper totalManifestPages;

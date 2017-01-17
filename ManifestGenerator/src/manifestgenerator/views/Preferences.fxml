@@ -9,7 +9,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane minHeight="200.0" minWidth="600.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.PreferencesController">
+<BorderPane minHeight="200.0" minWidth="600.0" style="-fx-background-color: #ffffff;" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.PreferencesController">
    <top>
       <GridPane maxHeight="200.0" BorderPane.alignment="CENTER">
         <columnConstraints>
