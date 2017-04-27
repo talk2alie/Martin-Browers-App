@@ -109,8 +109,7 @@ public class ManifestExporter
         headerRun.setText(String.format("Stop: %s", palette.getStopInfo()));
     }
 
-    private void createDocument(File file) throws FileNotFoundException,
-            IOException {
+    private void createDocument(File file) throws FileNotFoundException, IOException {
         updateMessage("Getting Things Ready...");
         updateProgress(-1, palettes.size());
 
@@ -132,8 +131,7 @@ public class ManifestExporter
         int processedPalettesCount = 0;
         // Note that each palette can produce a single manifest page
         for (Palette palette : palettes) {
-            updateMessage(String.format("Exporting Page %s of %s...",
-                    ++currentPage, palettes.size()));
+            updateMessage(String.format("Exporting Page %s of %s...", ++currentPage, palettes.size()));
             updateProgress(currentPage, palettes.size());
 
             createHeader(manifestDocument, palette);
@@ -141,8 +139,7 @@ public class ManifestExporter
             // Add 1 for header row            
             int rowCount = palette.CASES.size() + 1;
             // Create cases table
-            XWPFTable casesTable = manifestDocument.createTable(rowCount,
-                    COLUMN_COUNT);
+            XWPFTable casesTable = manifestDocument.createTable(rowCount, COLUMN_COUNT);
             CTTblPr tableProperties = casesTable.getCTTbl().getTblPr();
             CTString styleStr = tableProperties.addNewTblStyle();
             styleStr.setVal(TABLE_STYLE);
@@ -154,9 +151,7 @@ public class ManifestExporter
                 List<XWPFTableCell> cells = row.getTableCells();
                 // Add content to each cell
                 for (XWPFTableCell cell : cells) {
-                    cell
-                            .setVerticalAlignment(
-                                    XWPFTableCell.XWPFVertAlign.CENTER);
+                    cell.setVerticalAlignment(XWPFTableCell.XWPFVertAlign.CENTER);
 
                     // Get a table cell properties element (tcPr)
                     CTTcPr cellProperties = cell.getCTTc().addNewTcPr();
@@ -189,8 +184,7 @@ public class ManifestExporter
                             cellRun.setText("STOP");
                         }
                     } else {
-                        Cases cases = palette.getSortedCaseList().get(
-                                rowIndex - 1);
+                        Cases cases = palette.getSortedCaseList().get(rowIndex - 1);
                         if (columnIndex == WRIN_COLUMN) {
                             cellRun.setText(cases.getContentId());
                         }
@@ -222,8 +216,7 @@ public class ManifestExporter
             // Create page break
             processedPalettesCount++;
             if (processedPalettesCount < palettes.size()) {
-                XWPFParagraph pageBreakParagraph = manifestDocument
-                        .createParagraph();
+                XWPFParagraph pageBreakParagraph = manifestDocument.createParagraph();
                 pageBreakParagraph.setPageBreak(Boolean.TRUE);
             }
         }
@@ -242,6 +235,7 @@ public class ManifestExporter
         updateProgress(0, palettes.size());
     }
 
+    // TODO: Move this to a Logger class
     public void append(FileWriter w, String s) {
         try {
             w.append(s);
@@ -256,22 +250,19 @@ public class ManifestExporter
     protected Void call() throws Exception {
         updateMessage("Generating Initial File Name...");
         updateProgress(0, palettes.size());
-        FileWriter writer = new FileWriter("C:\\Users\\Public\\log.txt");
+        
+        // TODO: Move this to a logger class
+        FileWriter writer = new FileWriter("log.log");
         Platform.runLater(() -> {
             Date cureentDate = new Date();
-
-            SimpleDateFormat dateFormat =
-                    new SimpleDateFormat("MMddyyyy_hhmmss");
-            initialFileName = String.format("Manifest_%s", dateFormat.format(
-                    cureentDate));
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMddyyyy_hhmmss");
+            initialFileName = String.format("Manifest_%s", dateFormat.format(cureentDate));
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Export Manifests to MS Word");
             fileChooser.getExtensionFilters().clear();
-            fileChooser.getExtensionFilters().add(new ExtensionFilter(
-                    "Microsoft Word", "*.docx"));
+            fileChooser.getExtensionFilters().add(new ExtensionFilter("Microsoft Word", "*.docx"));
             append(writer, "2");
-            if (defaultOutputDirectory != null && defaultOutputDirectory
-                    .length() > 0) {
+            if (defaultOutputDirectory != null && defaultOutputDirectory.length() > 0) {
                 File outputDirectory = new File(defaultOutputDirectory);
                 fileChooser.setInitialDirectory(outputDirectory);
             }
