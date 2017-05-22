@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="1.8.0_111" class="java.beans.XMLDecoder">
+ <object class="manifestgenerator.models.PreferencesViewModel">
+  <void property="defaultInputDirectory">
+   <string>C:\Users\MPussah\Documents\MartinBrowers\Files</string>
+  </void>
+  <void property="defaultOutputDirectory">
+   <string>C:\Users\MPussah\Documents\MartinBrowers\Files</string>
+  </void>
+ </object>
+</java>

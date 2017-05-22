@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane minHeight="768.0" minWidth="1024.0" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="manifestgenerator.RootLayoutController">
+   <center>
+      <GridPane fx:id="mainGrid" BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="70.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="42.0" vgrow="SOMETIMES" />
+            <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <GridPane fx:id="previewGrid" maxHeight="42.0" GridPane.columnSpan="4" GridPane.rowIndex="3">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="90.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints percentHeight="100.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1">
+                     <children>
+                        <ProgressBar fx:id="progressBar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" progress="0.0" />
+                        <Label fx:id="progressLabel" alignment="CENTER" maxHeight="42.0" maxWidth="1.7976931348623157E308" prefHeight="42.0" textAlignment="CENTER" StackPane.alignment="CENTER" />
+                     </children>
+                  </StackPane>
+               </children>
+            </GridPane>
+            <GridPane fx:id="contentGrid" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+                <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints percentHeight="5.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="83.0" vgrow="SOMETIMES" />
+                  <RowConstraints percentHeight="2.0" vgrow="SOMETIMES" />
+                <RowConstraints percentHeight="10.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <GridPane fx:id="sliderGrid" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" />
+                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <ListView fx:id="manifestListView" GridPane.columnIndex="1" />
+                        <Button fx:id="previousButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPreviousScroll">
+                           <tooltip>
+                              <Tooltip fx:id="previousTooltip" styleClass="tool-tip" text="View Previous Pages (Left Arrow)" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="nextButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onNextScroll" GridPane.columnIndex="2">
+                           <tooltip>
+                              <Tooltip fx:id="nextTooltip" styleClass="tool-tip" text="View Next Pages (Right Arrow)" />
+                           </tooltip>
+                        </Button>
+                     </children>
+                  </GridPane>
+                  <Separator GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                  <HBox fx:id="manifestInfoHBox" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                     <children>
+                        <Label fx:id="originalFileLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Original File: Bun Manifest.csv" />
+                        <Separator maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" />
+                        <Label fx:id="foundOnPageLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Found on Page: 5 of 195" />
+                        <Separator maxHeight="32.0" maxWidth="1.7976931348623157E308" orientation="VERTICAL" />
+                        <Label fx:id="manifestPositionLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Manifest: Page 1 of 195" />
+                     </children>
+                  </HBox>
+               </children>
+            </GridPane>
+            <TextField fx:id="browseTextField" editable="false" maxHeight="42.0" maxWidth="1.7976931348623157E308" prefHeight="42.0" promptText="Browse for CSV file with Manifest Data" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="browseButton" defaultButton="true" maxHeight="42.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse" GridPane.columnIndex="2" GridPane.rowIndex="1">
+               <tooltip>
+                  <Tooltip fx:id="browseTooltip" styleClass="tool-tip" text="Browse for Manifest Data (Ctrl+B)" />
+               </tooltip></Button>
+         </children>
+      </GridPane>
+   </center>
+   <bottom>
+      <GridPane fx:id="footerGrid" minHeight="62.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="50.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+            <ColumnConstraints hgrow="SOMETIMES" percentWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" percentWidth="5.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints percentHeight="70.0" vgrow="SOMETIMES" />
+          <RowConstraints percentHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button fx:id="printButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrintAction" text="Print" GridPane.columnIndex="2">
+               <tooltip>
+                  <Tooltip fx:id="printTooltip" styleClass="tool-tip" text="Print Manifests (Ctrl+P)" wrapText="true" />
+               </tooltip></Button>
+            <Button fx:id="exportButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onExportAction" text="Export to Word" GridPane.columnIndex="3">
+               <tooltip>
+                  <Tooltip fx:id="exportTooltip" styleClass="tool-tip" text="Export Manifests to MS Word (Ctrl+W)" wrapText="true" />
+               </tooltip></Button>
+         </children>
+      </GridPane>
+   </bottom>
+   <top>
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="browseMenuItem" mnemonicParsing="false" onAction="#onBrowseAction" text="Browse">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="B" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="preferencesMenuItem" mnemonicParsing="false" onAction="#onPreferencesAction" text="Preferences...                ">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="R" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+              <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onExit" text="Exit">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+                  <MenuItem fx:id="helpMenuItem" mnemonicParsing="false" onAction="#onHelpMenuAction" text="Manifest Generator Help       " />
+              <MenuItem mnemonicParsing="false" onAction="#onAboutAction" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+</BorderPane>
